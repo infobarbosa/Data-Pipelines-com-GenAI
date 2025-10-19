@@ -167,7 +167,9 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
     
     ```
 
-4.  **Baixe os datasets:**
+    **ATENÇÃO!** `requirements.txt` tem valor apenas temporário. A gestão de dependências mais adequada seria via `pyproject.toml`, a qual será vista mais tarde nesse tutorial.
+
+3.  **Baixe os datasets:**
     Execute o script para baixar os dados necessários para a pasta `data/`.
     
     **Clientes**
@@ -193,18 +195,8 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
     gunzip -c ./data/input/pedidos.gz | head -n 5
     
     ```
-
-### OpenAI Codex
-5. Vá até https://platform.openai.com/settings/organization/api-keys e crie um API key para o laboratório.
-
-6. Instale o Codex
-
-```bash
-sudo npm install -g @openai/codex
-
-```
-
 ---
+
 ## Passo 2: 
 
 ### Exemplos de prompt
@@ -250,29 +242,31 @@ sudo npm install -g @openai/codex
             - Leiaute:
                 | Atributo        | Tipo      | Obs                                               | 
                 | ---             | ---       | ---                                               |
-                | ID_PEDIDO       | UUID      | O identificador da pessoa                         | 
+                | ID_PEDIDO       | string    | O identificador do pedido                         | 
                 | PRODUTO         | string    | O nome do produto no pedido                       | 
                 | VALOR_UNITARIO  | float     | O valor unitário do produto no pedido             | 
                 | QUANTIDADE      | long      | A quantidade do produto no pedido                 | 
-                | DATA_CRIACAO    | date      | A data da criação do pedido                       | 
+                | DATA_CRIACAO    | timestamp | A data da criação do pedido                       | 
                 | UF              | string    | A sigla da unidade federativa (estado) no Brasil  | 
                 | ID_CLIENTE      | long      | O identificador do cliente                        | 
+                
+                **Atenção!** `ID_PEDIDO` é definido como `string` mas sua formatação segue a especificação UUID.
 
             - Sample
                 ```csv
                 id_pedido;produto;valor_unitario;quantidade;data_criacao;uf;id_cliente
 
-                fdd7933e-ce3a-4475-b29d-f239f491a0e7;MONITOR;600;3;2024-01-01T22:26:32;RO;12414<br>
-                fe0f547a-69f3-4514-adee-8f4299f152af;MONITOR;600;2;2024-01-01T16:01:26;SP;11750<br>
-                fe4f2b05-1150-43d8-b86a-606bd55bc72c;NOTEBOOK;1500;1;2024-01-01T06:49:21;RR;1195<br>
-                fe8f5b08-160b-490b-bcb3-c86df6d2e53b;GELADEIRA;2000;1;2024-01-01T04:14:54;AC;8433<br>
-                feaf3652-e1bd-4150-957e-ee6c3f62e11e;HOMETHEATER;500;2;2024-01-01T10:33:09;SP;12231<br>
-                feb1efc5-9dd7-49a5-a9c7-626c2de3e029;CELULAR;1000;2;2024-01-01T13:48:39;SC;2340<br>
-                ff181456-d587-4abd-a0ac-a8e6e33b87d5;TABLET;1100;1;2024-01-01T21:28:47;RS;12121<br>
-                ff3bc5e0-c49a-46c5-a874-3eb6c8289fd1;HOMETHEATER;500;1;2024-01-01T22:31:35;SC;6907<br>
-                ff4fcf5f-ca8a-4bc4-8d17-995ecaab3110;SOUNDBAR;900;3;2024-01-01T19:33:08;RJ;9773<br>
-                ff703483-e564-4883-bdb5-0e25d8d9a006;NOTEBOOK;1500;3;2024-01-01T00:22:32;RN;2044<br>
-                ffe4d6ad-3830-45af-a599-d09daaeb5f75;HOMETHEATER;500;3;2024-01-01T02:55:59;MS;3846<br>
+                fdd7933e-ce3a-4475-b29d-f239f491a0e7;MONITOR;600;3;2024-01-01T22:26:32;RO;12414
+                fe0f547a-69f3-4514-adee-8f4299f152af;MONITOR;600;2;2024-01-01T16:01:26;SP;11750
+                fe4f2b05-1150-43d8-b86a-606bd55bc72c;NOTEBOOK;1500;1;2024-01-01T06:49:21;RR;1195
+                fe8f5b08-160b-490b-bcb3-c86df6d2e53b;GELADEIRA;2000;1;2024-01-01T04:14:54;AC;8433
+                feaf3652-e1bd-4150-957e-ee6c3f62e11e;HOMETHEATER;500;2;2024-01-01T10:33:09;SP;12231
+                feb1efc5-9dd7-49a5-a9c7-626c2de3e029;CELULAR;1000;2;2024-01-01T13:48:39;SC;2340
+                ff181456-d587-4abd-a0ac-a8e6e33b87d5;TABLET;1100;1;2024-01-01T21:28:47;RS;12121
+                ff3bc5e0-c49a-46c5-a874-3eb6c8289fd1;HOMETHEATER;500;1;2024-01-01T22:31:35;SC;6907
+                ff4fcf5f-ca8a-4bc4-8d17-995ecaab3110;SOUNDBAR;900;3;2024-01-01T19:33:08;RJ;9773
+                ff703483-e564-4883-bdb5-0e25d8d9a006;NOTEBOOK;1500;3;2024-01-01T00:22:32;RN;2044
+                ffe4d6ad-3830-45af-a599-d09daaeb5f75;HOMETHEATER;500;3;2024-01-01T02:55:59;MS;3846
 
                 ```
 
@@ -400,6 +394,8 @@ Sua tarefa é projetar e implementar um módulo Python de I/O (Data Access Layer
 
 ## Passo 7: Lógica de Negócio e Orquestração
 
+### Exemplo de prompt
+
 Sua tarefa é projetar e implementar um módulo Python para a lógica de negócios (transformação) de um pipeline de ETL. O design deve seguir rigorosamente o princípio da **Separação de Preocupações**, onde a lógica de transformação é 100% isolada das camadas de I/O (leitura/escrita).
 
 **Contexto da Lógica de Negócios:**
@@ -422,10 +418,11 @@ O objetivo é calcular o "Top 10 Clientes por Valor Total de Vendas".
 **Requisitos Arquiteturais (Obrigatório):**
 
 1.  **Função Pura:** A lógica DEVE ser implementada como uma função pura (ou um método de classe estático).
-2.  **Assinatura Clara:** A função deve ter uma assinatura clara, recebendo os DataFrames de entrada como parâmetros e retornando o DataFrame transformado.
+2.  **Assinatura Clara:** A função DEVE ter uma assinatura clara, recebendo os DataFrames de entrada como parâmetros e retornando o DataFrame transformado. 
     * Exemplo: `def calcular_top_10_clientes(df_clientes: DataFrame, df_pedidos: DataFrame) -> DataFrame:`
-3.  **Sem Efeitos Colaterais (Side-effects):** A função NÃO DEVE conter NENHUMA lógica de I/O (`.read` ou `.write`). Ela não deve importar ou usar o `SparkManager` ou o `DataIOManager`.
-4.  **Código Limpo e Manutenível:**
+3.  A função NÃO DEVE ter configurações "hardcoded" e que deve apenas chamar os DataIOManager e a função de transformação.    
+4.  **Sem Efeitos Colaterais (Side-effects):** A função NÃO DEVE conter NENHUMA lógica de I/O (`.read` ou `.write`). Ela não deve importar ou usar o `SparkManager` ou o `DataIOManager`.
+5.  **Código Limpo e Manutenível:**
     * Use type hints (`pyspark.sql.DataFrame`, `pyspark.sql.functions`).
     * Use `pyspark.sql.functions` (F) para todas as transformações (evite UDFs).
     * **Crucial:** Use uma classe de constantes (ou Enum) para todos os nomes de colunas ("magic strings"). Isso é vital para refatoração e prevenção de bugs.
@@ -449,6 +446,7 @@ O objetivo é calcular o "Top 10 Clientes por Valor Total de Vendas".
 3.  **Exemplo de Teste Unitário:**
     * Forneça um `tests/test_vendas_transforms.py` usando `pytest`.
     * O teste NÃO DEVE usar o `DataIOManager` ou ler arquivos.
+    * O teste DEVE gerar 3 conjuntos de **dados sintéticos de exemplo** (Input 1: 2 clientes, 3 pedidos; Input 2: caso de borda com um cliente sem pedidos; Input 3: caso em que o cliente 10 e o cliente 11 têm o mesmo valor total de vendas, para testar a estabilidade da ordenação) no formato spark.createDataFrame(). 
     * O teste deve:
         1.  Criar uma `SparkSession` local (apenas para o teste).
         2.  Criar um `df_clientes_teste` (com 2-3 linhas) usando `spark.createDataFrame()`.
@@ -527,8 +525,8 @@ Criar todos os artefatos de configuração e scripts necessários para **empacot
     * Utilize um único arquivo `pyproject.toml` para gerenciar o projeto.
     * Este arquivo deve definir:
         * Metadados do projeto (nome, versão, autor).
-        * Dependências de produção (na seção `[project.dependencies]`).
-        * Dependências de desenvolvimento (em uma seção opcional `[project.optional-dependencies]`, grupo "dev").
+        * Dependências de produção (na seção `[project.dependencies]`). As dependências de produção são pyspark, pyyaml e pydantic.
+        * Dependências de desenvolvimento (em uma seção opcional `[project.optional-dependencies]`, grupo "dev"). As dependências de desenvolvimento incluem pytest, pytest-mock, black, flake8 e build.
 
 2.  **Empacotamento como Wheel (`.whl`):**
     * O `pyproject.toml` deve estar configurado para permitir que o projeto seja "buildado" como um pacote Python (wheel) usando ferramentas padrão (ex: `build`). Isso é superior a enviar arquivos `.py` soltos ou `.zip`.
@@ -611,7 +609,7 @@ Sua tarefa é gerar o arquivo `README.md` completo (em Markdown) para o projeto 
     * Passo a passo claro:
         1.  Clonar o repositório.
         2.  Criar o ambiente virtual (ex: `python -m venv .venv`).
-        3.  Instalar as dependências (incluindo as de "dev") usando o `pyproject.toml` (ex: `pip install -e .[dev]`).
+        3.  Instalar as dependências (incluindo as de "dev") usando o `pyproject.toml` (ex: `pip install -e .[dev]`).  As dependências de produção são pyspark, pyyaml e pydantic. As dependências de desenvolvimento incluem pytest, pytest-mock, black, flake8 e build
         4.  Copiar o `config.yaml.template` para `config.yaml` (se houver).
 
 6.  **Comandos Principais (Interface do `Makefile`):**
