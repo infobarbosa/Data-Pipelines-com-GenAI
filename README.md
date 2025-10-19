@@ -64,7 +64,7 @@ Para um engenheiro, isso deixa de ser uma conversa casual e se torna um **proces
 
 * **Atribuição de Persona (Persona Setting):**
     * **O que é:** Iniciar o prompt definindo "quem" a IA deve ser. Isso restringe o espaço de busca do modelo e ajusta seu "tom" e nível técnico.
-    * **Exemplo para DE:** *"Você é um engenheiro de dados sênior, especialista em otimização de performance no Apache Spark. Você escreve código PySpark limpo, idiomático e com alta performance."*
+    * **Exemplo:** *"Você é um engenheiro de dados sênior, especialista em otimização de performance no Apache Spark. Você escreve código PySpark limpo, idiomático e com alta performance."*
 
 * **Aprendizado no Contexto (In-Context Learning):**
     * **Zero-Shot:** Fazer um pedido direto sem exemplos. Funciona para tarefas simples.
