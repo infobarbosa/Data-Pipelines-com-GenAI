@@ -98,20 +98,25 @@ O erro mais comum é assumir que a IA sabe do que você está falando. Um engenh
 * **Fornecimento de Schema:** Nunca peça para a IA escrever uma query ou transformação sem fornecer o schema dos dados.
     * **Exemplo:** 
     ```
-    Dado este schema de DataFrame Spark: 
-    `[nome: string, data_nascimento: timestamp, vendas_totais: double]`, escreva um script PySpark que calcule a idade do cliente e o agrupe por década de nascimento, somando as vendas totais.
+    Dado este schema de DataFrame Spark: `[nome: string, data_nascimento: timestamp, vendas_totais: double]`, 
+    escreva um script PySpark que calcule a idade do cliente e 
+    o agrupe por década de nascimento, somando as vendas totais.
     ```
 
 * **Fornecimento de Stack Trace (Rastreamento de Pilha):** Para debugging, não basta dizer "meu código deu erro".
     * **Exemplo:**
     ```
-    Meu script PySpark falhou com o seguinte erro. Analise o *stack trace* e me dê 3 possíveis causas e como corrigi-las. *[COLE O STACK TRACE COMPLETO AQUI]*
+    Meu script PySpark falhou com o seguinte erro. 
+    Analise o *stack trace* e me dê 3 possíveis causas e como corrigi-las. [COLE O STACK TRACE COMPLETO AQUI]
     ```
 
 * **Restrições e Requisitos:** Seja explícito sobre as "regras do jogo".
     * **Exemplo:** 
     ```
-    Gere uma função em Python que receba um DataFrame PySpark. A função deve ser puramente funcional (sem efeitos colaterais) e deve incluir *docstrings* no formato Google e *type hints*. Não use UDFs do Python, prefira as funções nativas do Spark.
+    Gere uma função em Python que receba um DataFrame PySpark. 
+    A função deve ser puramente funcional (sem efeitos colaterais) e 
+    deve incluir *docstrings* no formato Google e *type hints*. 
+    Não use UDFs do Python, prefira as funções nativas do Spark.
     ```
 
 ---
