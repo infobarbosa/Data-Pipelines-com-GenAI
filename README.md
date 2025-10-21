@@ -1,10 +1,3 @@
-<style>
-.code-block-limit {
-  max-width: 800px; /* Altere para a largura máxima desejada */
-  margin: 0 auto; /* Centraliza o bloco, se desejar */
-}
-</style>
-
 # Data Pipelines com GenAI
 - Author: Prof. Barbosa  
 - Contact: infobarbosa@gmail.com  
@@ -72,23 +65,30 @@ Para um engenheiro, isso deixa de ser uma conversa casual e se torna um **proces
 * **Atribuição de Persona (Persona Setting):**
     * **O que é:** Iniciar o prompt definindo "quem" a IA deve ser. Isso restringe o espaço de busca do modelo e ajusta seu "tom" e nível técnico.
     * **Exemplo:** 
-        
-        > Você é um engenheiro de dados sênior, especialista em otimização de performance no Apache Spark. Você escreve código PySpark limpo, idiomático e com alta performance.
+    ```
+    Você é um engenheiro de dados sênior, especialista em otimização de performance no Apache Spark. 
+    Você escreve código PySpark limpo, idiomático e com alta performance.
+    ```
         
 
 * **Aprendizado no Contexto (In-Context Learning):**
     * **Zero-Shot:** Fazer um pedido direto sem exemplos. Funciona para tarefas simples.
     * **Exemplo:** 
-        > Escreva um script PySpark para ler um arquivo Parquet.
+    ```
+    Escreva um script PySpark para ler um arquivo Parquet.
+
+    ```
 
     * **Few-Shot (O mais importante para código):** Fornecer um ou mais exemplos de "entrada -> saída" antes de fazer o pedido final. Isso ensina o modelo o *padrão* exato que você deseja.
     * **Exemplo:** 
-        > Eu quero converter queries SQL para código PySpark. 
-        > *Exemplo 1 (SQL):* `SELECT nome, idade FROM pessoas WHERE idade > 18` 
-        > *Exemplo 1 (PySpark):* `df.filter(col("idade") > 18).select("nome", "idade")` 
-        > *Exemplo 2 (SQL):* `SELECT ...` 
-        > *Exemplo 2 (PySpark):* `...` 
-        > *Agora, converta a seguinte query:* `[SUA QUERY COMPLEXA]` 
+    ```
+    Eu quero converter queries SQL para código PySpark. 
+    *Exemplo 1 (SQL):* `SELECT nome, idade FROM pessoas WHERE idade > 18` 
+    *Exemplo 1 (PySpark):* `df.filter(col("idade") > 18).select("nome", "idade")` 
+    *Exemplo 2 (SQL):* `SELECT ...` 
+    *Exemplo 2 (PySpark):* `...` 
+    *Agora, converta a seguinte query:* `[SUA QUERY COMPLEXA]` 
+    ```
 
 ---
 #### 2. Fornecimento de Contexto Detalhado
