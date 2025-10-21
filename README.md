@@ -1,3 +1,10 @@
+<style>
+.code-block-limit {
+  max-width: 800px; /* Altere para a largura máxima desejada */
+  margin: 0 auto; /* Centraliza o bloco, se desejar */
+}
+</style>
+
 # Data Pipelines com GenAI
 - Author: Prof. Barbosa  
 - Contact: infobarbosa@gmail.com  
@@ -65,9 +72,9 @@ Para um engenheiro, isso deixa de ser uma conversa casual e se torna um **proces
 * **Atribuição de Persona (Persona Setting):**
     * **O que é:** Iniciar o prompt definindo "quem" a IA deve ser. Isso restringe o espaço de busca do modelo e ajusta seu "tom" e nível técnico.
     * **Exemplo:** 
-        ```
+        <div class="code-block-limit">
         Você é um engenheiro de dados sênior, especialista em otimização de performance no Apache Spark. Você escreve código PySpark limpo, idiomático e com alta performance.
-        ```
+        </div>
 
 * **Aprendizado no Contexto (In-Context Learning):**
     * **Zero-Shot:** Fazer um pedido direto sem exemplos. Funciona para tarefas simples.
@@ -94,7 +101,8 @@ O erro mais comum é assumir que a IA sabe do que você está falando. Um engenh
 * **Fornecimento de Schema:** Nunca peça para a IA escrever uma query ou transformação sem fornecer o schema dos dados.
     * **Exemplo:** 
     ```
-    Dado este schema de DataFrame Spark: `[nome: string, data_nascimento: timestamp, vendas_totais: double]`, escreva um script PySpark que calcule a idade do cliente e o agrupe por década de nascimento, somando as vendas totais.
+    Dado este schema de DataFrame Spark: 
+    `[nome: string, data_nascimento: timestamp, vendas_totais: double]`, escreva um script PySpark que calcule a idade do cliente e o agrupe por década de nascimento, somando as vendas totais.
     ```
 
 * **Fornecimento de Stack Trace (Rastreamento de Pilha):** Para debugging, não basta dizer "meu código deu erro".
