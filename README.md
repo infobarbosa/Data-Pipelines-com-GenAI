@@ -64,40 +64,69 @@ Para um engenheiro, isso deixa de ser uma conversa casual e se torna um **proces
 
 * **Atribuição de Persona (Persona Setting):**
     * **O que é:** Iniciar o prompt definindo "quem" a IA deve ser. Isso restringe o espaço de busca do modelo e ajusta seu "tom" e nível técnico.
-    * **Exemplo:** *"Você é um engenheiro de dados sênior, especialista em otimização de performance no Apache Spark. Você escreve código PySpark limpo, idiomático e com alta performance."*
+    * **Exemplo:** 
+        ```
+        Você é um engenheiro de dados sênior, especialista em otimização de performance no Apache Spark. Você escreve código PySpark limpo, idiomático e com alta performance.
+        ```
 
 * **Aprendizado no Contexto (In-Context Learning):**
     * **Zero-Shot:** Fazer um pedido direto sem exemplos. Funciona para tarefas simples.
-        * *Exemplo:* "Escreva um script PySpark para ler um arquivo Parquet."
-    * **Few-Shot (O mais importante para código):** Fornecer um ou mais exemplos de "entrada -> saída" antes de fazer o pedido final. Isso ensina o modelo o *padrão* exato que você deseja.
-        * *Exemplo:* "Eu quero converter queries SQL para código PySpark.
-            *Exemplo 1 (SQL):* `SELECT nome, idade FROM pessoas WHERE idade > 18`
-            *Exemplo 1 (PySpark):* `df.filter(col("idade") > 18).select("nome", "idade")`
-            *Exemplo 2 (SQL):* `SELECT ...`
-            *Exemplo 2 (PySpark):* `...`
-            *Agora, converta a seguinte query:* `[SUA QUERY COMPLEXA]`"
+    * **Exemplo:** 
+        ```
+        Escreva um script PySpark para ler um arquivo Parquet.
+        ```
 
+    * **Few-Shot (O mais importante para código):** Fornecer um ou mais exemplos de "entrada -> saída" antes de fazer o pedido final. Isso ensina o modelo o *padrão* exato que você deseja.
+    * **Exemplo:** 
+        ```
+        Eu quero converter queries SQL para código PySpark.
+        *Exemplo 1 (SQL):* `SELECT nome, idade FROM pessoas WHERE idade > 18`
+        *Exemplo 1 (PySpark):* `df.filter(col("idade") > 18).select("nome", "idade")`
+        *Exemplo 2 (SQL):* `SELECT ...`
+        *Exemplo 2 (PySpark):* `...`
+        *Agora, converta a seguinte query:* `[SUA QUERY COMPLEXA]`
+        ```
+---
 #### 2. Fornecimento de Contexto Detalhado
 
 O erro mais comum é assumir que a IA sabe do que você está falando. Um engenheiro de dados deve aprender a "alimentar" o prompt com o máximo de contexto relevante.
 
 * **Fornecimento de Schema:** Nunca peça para a IA escrever uma query ou transformação sem fornecer o schema dos dados.
-    * *Exemplo:* "Dado este schema de DataFrame Spark: `[nome: string, data_nascimento: timestamp, vendas_totais: double]`, escreva um script PySpark que calcule a idade do cliente e o agrupe por década de nascimento, somando as vendas totais."
+    * **Exemplo:** 
+    ```
+    Dado este schema de DataFrame Spark: `[nome: string, data_nascimento: timestamp, vendas_totais: double]`, escreva um script PySpark que calcule a idade do cliente e o agrupe por década de nascimento, somando as vendas totais.
+    ```
 
 * **Fornecimento de Stack Trace (Rastreamento de Pilha):** Para debugging, não basta dizer "meu código deu erro".
-    * *Exemplo:* "Meu script PySpark falhou com o seguinte erro. Analise o *stack trace* e me dê 3 possíveis causas e como corrigi-las. *[COLE O STACK TRACE COMPLETO AQUI]*"
+    * **Exemplo:**
+    ```
+    Meu script PySpark falhou com o seguinte erro. Analise o *stack trace* e me dê 3 possíveis causas e como corrigi-las. *[COLE O STACK TRACE COMPLETO AQUI]*
+    ```
 
 * **Restrições e Requisitos:** Seja explícito sobre as "regras do jogo".
-    * *Exemplo:* "Gere uma função em Python que receba um DataFrame PySpark. A função deve ser puramente funcional (sem efeitos colaterais) e deve incluir *docstrings* no formato Google e *type hints*. Não use UDFs do Python, prefira as funções nativas do Spark."
+    * **Exemplo:** 
+    ```
+    Gere uma função em Python que receba um DataFrame PySpark. A função deve ser puramente funcional (sem efeitos colaterais) e deve incluir *docstrings* no formato Google e *type hints*. Não use UDFs do Python, prefira as funções nativas do Spark.
+    ```
 
+---
 #### 3. Controle do Formato de Saída
 
 A IA pode gerar a resposta correta no formato errado (ex: prosa em vez de código).
 
 * **Solicitação de Formato Específico:** Diga explicitamente como você quer a resposta.
-    * *Exemplo para Documentação:* "Gere a documentação para este projeto no formato `README.md`. Inclua as seções: 'Objetivo', 'Como Instalar' (usando pip) e 'Exemplo de Uso'."
-    * *Exemplo para Testes:* "Gere a saída em um bloco de código Python. A resposta deve ser um arquivo `test_pipeline.py` completo, usando `pytest` e `pytest-spark`."
-    * *Exemplo para Dados:* "Gere 5 linhas de dados sintéticos (mock data) para este schema. A saída deve ser no formato JSON."
+    * **Exemplo para Documentação:** 
+        ```
+        Gere a documentação para este projeto no formato `README.md`. Inclua as seções: 'Objetivo', 'Como Instalar' (usando pip) e 'Exemplo de Uso'.
+        ```
+    * **Exemplo para Testes:** 
+        ```
+        Gere a saída em um bloco de código Python. A resposta deve ser um arquivo `test_pipeline.py` completo, usando `pytest` e `pytest-spark`.
+        ```
+    * **Exemplo para Dados:** 
+        ```
+        Gere 5 linhas de dados sintéticos (mock data) para este schema. A saída deve ser no formato JSON."
+        ```
 
 #### 4. Técnicas de Raciocínio (Debugging e Otimização)
 
