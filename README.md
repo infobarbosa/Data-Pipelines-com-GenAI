@@ -83,12 +83,12 @@ Para um engenheiro, isso deixa de ser uma conversa casual e se torna um **proces
 
     * **Few-Shot (O mais importante para código):** Fornecer um ou mais exemplos de "entrada -> saída" antes de fazer o pedido final. Isso ensina o modelo o *padrão* exato que você deseja.
     * **Exemplo:** 
-        > Eu quero converter queries SQL para código PySpark.
+        > Eu quero converter queries SQL para código PySpark. 
         > *Exemplo 1 (SQL):* `SELECT nome, idade FROM pessoas WHERE idade > 18` 
-        > *Exemplo 1 (PySpark):* `df.filter(col("idade") > 18).select("nome", "idade")`
-        > *Exemplo 2 (SQL):* `SELECT ...`
-        > *Exemplo 2 (PySpark):* `...`
-        > *Agora, converta a seguinte query:* `[SUA QUERY COMPLEXA]`
+        > *Exemplo 1 (PySpark):* `df.filter(col("idade") > 18).select("nome", "idade")` 
+        > *Exemplo 2 (SQL):* `SELECT ...` 
+        > *Exemplo 2 (PySpark):* `...` 
+        > *Agora, converta a seguinte query:* `[SUA QUERY COMPLEXA]` 
 
 ---
 #### 2. Fornecimento de Contexto Detalhado
