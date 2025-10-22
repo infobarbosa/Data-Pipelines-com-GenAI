@@ -65,27 +65,25 @@ Para um engenheiro, isso deixa de ser uma conversa casual e se torna um **proces
 * **Atribuição de Persona (Persona Setting):**
     * **O que é:** Iniciar o prompt definindo "quem" a IA deve ser. Isso restringe o espaço de busca do modelo e ajusta seu "tom" e nível técnico.
     * **Exemplo:** 
-    <p align="center"><strong>***</strong></p>
+    ```
     
     Você é um engenheiro de dados sênior, especialista em otimização de performance no Apache Spark. 
     Você escreve código PySpark limpo, idiomático e com alta performance.
-    <p align="center"><strong>***</strong></p>
+    ```
 
         
 
 * **Aprendizado no Contexto (In-Context Learning):**
     * **Zero-Shot:** Fazer um pedido direto sem exemplos. Funciona para tarefas simples.
     * **Exemplo:** 
-    <p align="center"><strong>***</strong></p>
-
+    ```
     Escreva um script PySpark para ler um arquivo Parquet.
-
-    <p align="center"><strong>***</strong></p>
+    ```
 
 
     * **Few-Shot (O mais importante para código):** Fornecer um ou mais exemplos de "entrada -> saída" antes de fazer o pedido final. Isso ensina o modelo o *padrão* exato que você deseja.
     * **Exemplo:** 
-    <p align="center"><strong>***</strong></p>
+    ```
 
     Eu quero converter queries SQL para código PySpark. \
     *Exemplo 1 (SQL):* `SELECT nome, idade FROM pessoas WHERE idade > 18` \
@@ -94,7 +92,7 @@ Para um engenheiro, isso deixa de ser uma conversa casual e se torna um **proces
     *Exemplo 2 (PySpark):* `...` \
     *Agora, converta a seguinte query:* `[SUA QUERY COMPLEXA]` 
 
-    <p align="center"><strong>***</strong></p>
+    ```
 
 
 ---
@@ -104,33 +102,33 @@ O erro mais comum é assumir que a IA sabe do que você está falando. Um engenh
 
 * **Fornecimento de Schema:** Nunca peça para a IA escrever uma query ou transformação sem fornecer o schema dos dados.
     * **Exemplo:** 
-    <p align="center"><strong>***</strong></p>
+    ```
 
     Dado este schema de DataFrame Spark: `[nome: string, data_nascimento: timestamp, vendas_totais: double]`, escreva um script PySpark que calcule a idade do cliente e o agrupe por década de nascimento, somando as vendas totais.
 
-    <p align="center"><strong>***</strong></p>
+    ```
 
 
 * **Fornecimento de Stack Trace (Rastreamento de Pilha):** Para debugging, não basta dizer "meu código deu erro".
     * **Exemplo:**
-    <p align="center"><strong>***</strong></p>
+    ```
 
     Meu script PySpark falhou com o seguinte erro. \
     Analise o *stack trace* e me dê 3 possíveis causas e como corrigi-las. \
     [COLE O STACK TRACE COMPLETO AQUI]
 
-    <p align="center"><strong>***</strong></p>
+    ```
 
 
 * **Restrições e Requisitos:** Seja explícito sobre as "regras do jogo".
     * **Exemplo:** 
-    <p align="center"><strong>***</strong></p>
+    ```
 
     Gere uma função em Python que receba um DataFrame PySpark. \
     A função deve ser puramente funcional (sem efeitos colaterais) e deve incluir *docstrings* no formato Google e *type hints*. \
     Não use UDFs do Python, prefira as funções nativas do Spark.
     
-    <p align="center"><strong>***</strong></p>
+    ```
 
 
 ---
@@ -140,33 +138,35 @@ A IA pode gerar a resposta correta no formato errado (ex: prosa em vez de códig
 
 * **Solicitação de Formato Específico:** Diga explicitamente como você quer a resposta.
     * **Exemplo para Documentação:** 
-        <p align="center"><strong>***</strong></p>
+        ```
 
         Gere a documentação para este projeto no formato `README.md`. 
         Inclua as seções: 'Objetivo', 'Como Instalar' (usando pip) e 'Exemplo de Uso'.
-        <p align="center"><strong>***</strong></p>
+
+        ```
 
     * **Exemplo para Testes:** 
-        <p align="center"><strong>***</strong></p>
+        ```
 
         Gere a saída em um bloco de código Python. A resposta deve ser 
         um arquivo `test_pipeline.py` completo, usando `pytest` e `pytest-spark`.
 
-        <p align="center"><strong>***</strong></p>
+        ```
 
     * **Exemplo para Dados:** 
-        <p align="center"><strong>***</strong></p>
+        ```
 
         Gere 5 linhas de dados sintéticos (mock data) para este schema. 
         A saída deve ser no formato JSON."
-        <p align="center"><strong>***</strong></p>
+
+        ```
 
 
 #### 4. Técnicas de Raciocínio (Debugging e Otimização)
 
 * **Cadeia de Pensamento (Chain-of-Thought - CoT):** Para problemas complexos, em vez de pedir a resposta final, peça para a IA "pensar passo a passo". Isso força o modelo a detalhar sua lógica, o que geralmente leva a uma resposta melhor e permite que você identifique onde o raciocínio falhou.
     * **Exemplo:** 
-        <p align="center"><strong>***</strong></p>
+        ```
 
         Estou tentando otimizar esta query Spark SQL: 
         `[QUERY LENTA]` 
@@ -175,23 +175,24 @@ A IA pode gerar a resposta correta no formato errado (ex: prosa em vez de códig
         1. Analise o que a query faz. 
         2. Identifique potenciais gargalos de performance (ex: joins cartesianos, falta de filtros). 
         3. Sugira uma versão otimizada da query e explique *por que* ela é mais rápida."
-        <p align="center"><strong>***</strong></p>
+
+        ```
 
 
 * **Explicação de Código (Code Elucidation):** é o processo de usar um modelo de GenAI para traduzir um bloco de código complexo, obscuro ou desconhecido em uma explicação clara, concisa e em linguagem natural.
     * **Exemplo 1:**
-        <p align="center"><strong>***</strong></p>
+        ```
 
         Explique este trecho de código linha por linha.
-        <p align="center"><strong>***</strong></p>
+        ```
 
     * **Exemplo 2:**
-        <p align="center"><strong>***</strong></p>
 
         ```
-        Você é um especialista em otimização de Apache Spark. \
-        Analise este plano de execução físico de uma query Spark. \
-        Identifique os principais gargalos de performance (ex: Shuffles, Scans) e explique, em termos de negócio, por que a query está lenta e sugira uma otimização no código PySpark original.
+        Você é um especialista em otimização de Apache Spark. 
+        Analise este plano de execução físico de uma query Spark. 
+        Identifique os principais gargalos de performance (ex: Shuffles, Scans) e explique, 
+        em termos de negócio, por que a query está lenta e sugira uma otimização no código PySpark original.
             ```
             == Physical Plan ==
             *(5) SortMergeJoin [id#10], [id#25], Inner
@@ -203,16 +204,15 @@ A IA pode gerar a resposta correta no formato errado (ex: prosa em vez de códig
             :     +- *(3) FileScan parquet [id#25,venda#26] ...
             ```
         ```
-        <p align="center"><strong>***</strong></p>
 
 
     * **Exemplo 3**: 
-        <p align="center"><strong>***</strong></p>
 
+        ```
         Quebre esta expressão regular em partes e explique em detalhes o 
-        que ela está tentando validar ou extrair: \
-        `(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})Z\s+\[(ERROR|WARN)\]\s+(.*)`
-        <p align="center"><strong>***</strong></p>
+        que ela está tentando validar ou extrair:
+            `(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})Z\s+\[(ERROR|WARN)\]\s+(.*)`
+        ```
 
 
 #### 5. Iteração e Refinamento
@@ -221,17 +221,19 @@ O primeiro prompt quase nunca é o final. A engenharia de prompt é um **diálog
 
 * **Refinamento Pós-Resposta:** Usar a resposta da IA como parte do próximo prompt.
     * **Exemplo 1:** 
-        <p align="center"><strong>***</strong></p>
+        ```
 
         O código que você gerou está bom, mas você usou um RDD. 
         Por favor, refatore para usar exclusivamente a API de DataFrames.
-        <p align="center"><strong>***</strong></p>
+
+        ```
 
     * **Exemplo 2:** 
-        <p align="center"><strong>***</strong></p>
+        ```
 
         A documentação está incompleta. Adicione uma seção sobre como executar os testes automatizados.
-        <p align="center"><strong>***</strong></p>
+
+        ```
 
 ---
 
@@ -307,25 +309,26 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
 ### Exemplos de prompt
 1. Atribuição de Persona (Persona Setting):
 
-    <p align="center"><strong>***</strong></p>
+    ```
 
     Você é um engenheiro de dados sênior, especialista em otimização de performance no Apache Spark. 
     Você escreve código PySpark limpo, idiomático e com alta performance.
-    <p align="center"><strong>***</strong></p>
+
+    ```
 
 
 2. Aprendizado no Contexto (In-Context Learning):
-    * **Zero-Shot**:
-    <p align="center"><strong>***</strong></p>
+    #### **Zero-Shot**:
+    ```
 
     Escreva um script PySpark para ler os arquivos na pasta ./data/input,
     transformar em Parquet e armazenar na pasta ./data/output.
 
-    <p align="center"><strong>***</strong></p>
+    ```
 
-    * **Few-Shot**: Fornecer um ou mais exemplos de "entrada -> saída" antes de fazer o pedido final. Isso ensina o modelo o *padrão* exato que você deseja.
+    #### **Few-Shot**: Fornecer um ou mais exemplos de "entrada -> saída" antes de fazer o pedido final. Isso ensina o modelo o *padrão* exato que você deseja.
 
-    <p align="center"><strong>***</strong></p>
+    ```
 
     Escreva um script PySpark que leia os arquivos na pasta ./data/input,
     transforme em Parquet e armazene o resultado na pasta ./data/output.
@@ -385,8 +388,7 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
         ff703483-e564-4883-bdb5-0e25d8d9a006;NOTEBOOK;1500;3;2024-01-01T00:22:32;RN;2044
         ffe4d6ad-3830-45af-a599-d09daaeb5f75;HOMETHEATER;500;3;2024-01-01T02:55:59;MS;3846
         ```
-    <p align="center"><strong>***</strong></p>
-
+    ```
 
 ---
 
@@ -394,7 +396,7 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
 
 ### Exemplos de prompt
 1. Clientes
-    <p align="center"><strong>***</strong></p>
+    ```
 
     DEFINA o schema para o DataFrame de clientes em PySpark. 
     Gere o código Python que define um objeto StructType chamado schema_clientes com os seguintes campos: 
@@ -406,11 +408,12 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
     - interesses (ArrayType de StringType). 
     
     Inclua os imports necessários.
-    <p align="center"><strong>***</strong></p>
+
+    ```
 
 
 2. Pedidos
-    <p align="center"><strong>***</strong></p>
+    ```
 
     DEFINA o schema para o DataFrame de pedidos em PySpark. 
     Gere o código PySpark para um StructType chamado schema_pedidos que contenha os campos: 
@@ -421,8 +424,8 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
     - data_criacao (TimestampType)
     - uf (StringType)
     - id_cliente (LongType)."
-    <p align="center"><strong>***</strong></p>
 
+    ```
 
 ---
 
@@ -430,7 +433,7 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
 
 
 
-<p align="center"><strong>***</strong></p>
+```
 
 Seu objetivo é ter uma única base de código PySpark que possa ser executada em múltiplos
 ambientes (ex: desenvolvimento, homologação, produção) sem qualquer alteração no
@@ -455,14 +458,14 @@ mais legíveis que JSON para configurações complexas).
      - Importante: Demonstre como "mesclar" as configurações comuns com as configurações específicas do ambiente selecionado.
      - Sugira bibliotecas Python recomendadas para esta tarefa (como PyYAML para parsing e Pydantic para validação e tipagem da configuração, garantindo que os tipos de dados esperados estejam corretos).    
 
-<p align="center"><strong>***</strong></p>
+```
 
 
 ---
 
 ## Passo 5: Sessão Spark
 
-<p align="center"><strong>***</strong></p>
+```
 
 Sua tarefa é projetar e implementar um módulo Python para o gerenciamento centralizado da `SparkSession` em um projeto de engenharia de dados em larga escala.
 
@@ -490,13 +493,13 @@ O design deve priorizar:
 3.  Mais importante: forneça um exemplo de como um teste unitário (`test_meu_job.py`) usando `pytest` e `pytest-mock` poderia "mockar" a sessão Spark para testar a lógica de negócios sem iniciar um cluster Spark real.
 4.  Justifique brevemente sua escolha de design (ex: por que uma classe de fábrica é melhor que um singleton global para testabilidade).
 
-<p align="center"><strong>***</strong></p>
+```
 
 ---
 
 ## Passo 6: Leitura e Escrita de Dados (I/O)
 
-<p align="center"><strong>***</strong></p>
+```
 
 Sua tarefa é projetar e implementar um módulo Python de I/O (Data Access Layer) genérico, configurável e testável para PySpark. O objetivo principal é **abstrair completamente** a lógica de leitura (`.read`) e escrita (`.write`) dos scripts de ETL.
 
@@ -532,13 +535,13 @@ Sua tarefa é projetar e implementar um módulo Python de I/O (Data Access Layer
 4.  **Exemplo de Teste (O Ponto Crítico):** Um `test_meu_job.py` usando `pytest` e `pytest-mock` (ou o `unittest.mock`) que testa a lógica de negócio do `meu_job.py`. O teste DEVE mockar o `DataIOManager.read_data` para retornar um DataFrame de teste criado manualmente.
 5.  **Justificativa:** Explique brevemente por que o padrão Factory/Strategy é superior a um `if/elif` gigante dentro do método `read_data`.
 
-<p align="center"><strong>***</strong></p>
+```
 
 ---
 
 ## Passo 7: Lógica de Negócio e Orquestração
 
-<p align="center"><strong>***</strong></p>
+```
 
 Sua tarefa é projetar e implementar um módulo Python para a lógica de negócios (transformação) de um pipeline de ETL. O design deve seguir rigorosamente o princípio da **Separação de Preocupações**, onde a lógica de transformação é 100% isolada das camadas de I/O (leitura/escrita).
 
@@ -600,13 +603,13 @@ O objetivo é calcular o "Top 10 Clientes por Valor Total de Vendas".
 
 4.  **Justificativa:** Explique por que essa separação entre a lógica de transformação pura e o "job orquestrador" de I/O é a base do TDD em PySpark.
 
-<p align="center"><strong>***</strong></p>
+```
 
 ---
 
 ## Passo 8: Clean Code
 
-<p align="center"><strong>***</strong></p>
+```
 
 Sua tarefa final é **integrar** todos esses módulos em um projeto coeso, pronto para produção, aplicando os princípios de **Clean Architecture** e **InjeIção de Dependência (DI)**. O objetivo é o **desacoplamento total**.
 
@@ -653,13 +656,13 @@ Sua tarefa final é **integrar** todos esses módulos em um projeto coeso, pront
     * `jobs/run_top_10_clientes.py`, mostrando a função `run_job` que agora recebe suas dependências (DI).
 4.  **Exemplo de `config.yaml`:** Mostre um exemplo de arquivo de configuração que o `core/config.py` leria.
 
-<p align="center"><strong>***</strong></p>
+```
 
 ---
 
 ## Passo 9: Empacotamento
 
-<p align="center"><strong>***</strong></p>
+```
 
 **Contexto:**
 Temos um projeto PySpark multi-módulo (`core/`, `transforms/`, `jobs/`, `utils/`, `main.py`) que segue os princípios de Clean Architecture. O projeto tem dependências de produção (ex: `pyspark`, `pyyaml`) e dependências de desenvolvimento (ex: `pytest`, `pytest-mock`, `black`).
@@ -719,13 +722,13 @@ Criar todos os artefatos de configuração e scripts necessários para **empacot
 6.  Forneça exemplos de comandos para o build
 7.  Forneça exemplos de submissão do job (`spark-submit ...`) em um ambiente de produção.
 
-<p align="center"><strong>***</strong></p>
+```
 
 ---
 
 ## Passo 10: README.md
 
-<p align="center"><strong>***</strong></p>
+```
 
 Sua tarefa é gerar o arquivo `README.md` completo (em Markdown) para o projeto PySpark que acabamos de arquitetar. O tom deve ser profissional, claro e direto.
 
@@ -791,7 +794,7 @@ Sua tarefa é gerar o arquivo `README.md` completo (em Markdown) para o projeto 
 
 Gere o `README.md` completo com base nessas diretrizes.
 
-<p align="center"><strong>***</strong></p>
+```
 
 
 ---
