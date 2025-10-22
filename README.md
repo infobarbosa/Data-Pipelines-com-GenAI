@@ -443,14 +443,14 @@ mais legíveis que JSON para configurações complexas).
   1. Seja seccionado por ambiente (ex: dev, prod).
   2. Inclua configurações comuns (compartilhadas) e configurações específicas de cada ambiente.
   3. Contenha exemplos de parâmetros de pipeline, como:
-    a. Configurações da SparkSession (ex: appName, spark.sql.shuffle.partitions).
-    b. Definições de origem de dados (ex: source_path, format, options).
-    c. Definições de destino (ex: target_path, save_mode).
-    d. Parâmetros de lógica de negócios (ex: limiar_de_filtro, colunas_para_selecionar).    
-    e. Forneça uma classe ou módulo Python (ex: ConfigLoader) responsável por carregar o arquivo de configuração.
-    f. Este módulo deve determinar qual ambiente carregar (ex: a partir de uma variável de ambiente como APP_ENV ou um argumento de linha de comando como --env).
-    g. Importante: Demonstre como "mesclar" as configurações comuns com as configurações específicas do ambiente selecionado.
-    h. Sugira bibliotecas Python recomendadas para esta tarefa (como PyYAML para parsing e Pydantic para validação e tipagem da configuração, garantindo que os tipos de dados esperados estejam corretos).    
+     - Configurações da SparkSession (ex: appName, spark.sql.shuffle.partitions).
+     - Definições de origem de dados (ex: source_path, format, options).
+     - Definições de destino (ex: target_path, save_mode).
+     - Parâmetros de lógica de negócios (ex: limiar_de_filtro, colunas_para_selecionar).    
+     - Forneça uma classe ou módulo Python (ex: ConfigLoader) responsável por carregar o arquivo de configuração.
+     - Este módulo deve determinar qual ambiente carregar (ex: a partir de uma variável de ambiente como APP_ENV ou um argumento de linha de comando como --env).
+     - Importante: Demonstre como "mesclar" as configurações comuns com as configurações específicas do ambiente selecionado.
+     - Sugira bibliotecas Python recomendadas para esta tarefa (como PyYAML para parsing e Pydantic para validação e tipagem da configuração, garantindo que os tipos de dados esperados estejam corretos).    
 
 <p align="center"><strong>***</strong></p>
 
