@@ -169,7 +169,227 @@ A IA pode gerar a resposta correta no formato errado (ex: prosa em vez de códig
         ```
 
         Estou tentando otimizar esta query Spark SQL: 
-        `[QUERY LENTA]` 
+            ```
+            -- Esta query visa analisar o comportamento de clientes VIP
+            -- que se cadastraram em 2024, cruzando dados de pedidos, pagamentos e perfil.
+
+            WITH 
+            -- CTE 1: Processa e agrega os itens de pedidos.
+            -- Um 'id_pedido' pode ter múltiplos produtos; esta CTE consolida o valor total por pedido.
+            Pedidos_Agregados AS (
+                SELECT
+                    id_pedido,
+                    id_cliente,
+                    uf,
+                    MIN(data_criacao) AS data_criacao_pedido, -- Data da primeira entrada do pedido
+                    SUM(valor_unitario * quantidade) AS valor_total_bruto_pedido
+                FROM "meu_database"."pedidos"
+                GROUP BY
+                    id_pedido,
+                    id_cliente,
+                    uf
+            ),
+
+            -- CTE 2: Enriquece os dados de pagamento, extraindo informações do JSON 'avaliacao_fraude'
+            -- e filtrando apenas transações processadas (aprovadas ou recusadas).
+            Pagamentos_Processados AS (
+                SELECT
+                    id_pedido,
+                    forma_pagamento,
+                    valor_pagamento,
+                    status AS pagamento_aprovado,
+                    -- Extrai dados do objeto (STRUCT) 'avaliacao_fraude'
+                    avaliacao_fraude.fraude AS eh_fraude_identificada,
+                    avaliacao_fraude.score AS score_fraude,
+                    data_processamento
+                FROM "meu_database"."pagamentos"
+                -- Filtramos pagamentos nulos ou pendentes, se existissem
+                WHERE status IS NOT NULL 
+            ),
+
+            -- CTE 3: Enriquece os dados de clientes, calculando a idade, faixa etária
+            -- e desnormalizando (UNNEST) a lista de interesses.
+            Clientes_Enriquecidos AS (
+                SELECT
+                    c.id AS id_cliente,
+                    c.nome,
+                    c.email,
+                    c.data_nasc,
+                    -- Cálculo de idade
+                    date_diff('year', c.data_nasc, CURRENT_DATE) AS idade,
+                    -- Segmentação por faixa etária
+                    CASE
+                        WHEN date_diff('year', c.data_nasc, CURRENT_DATE) BETWEEN 18 AND 24 THEN '18-24'
+                        WHEN date_diff('year', c.data_nasc, CURRENT_DATE) BETWEEN 25 AND 34 THEN '25-34'
+                        WHEN date_diff('year', c.data_nasc, CURRENT_DATE) BETWEEN 35 AND 44 THEN '35-44'
+                        WHEN date_diff('year', c.data_nasc, CURRENT_DATE) BETWEEN 45 AND 59 THEN '45-59'
+                        ELSE '60+'
+                    END AS faixa_etaria,
+                    -- UNNEST transforma o array de interesses em linhas separadas
+                    interesse.item_interesse
+                FROM "meu_database"."clientes" c
+                CROSS JOIN UNNEST(c.interesses) AS interesse (item_interesse) -- Desnormalização
+            ),
+
+            -- CTE 4: Junta Pedidos e Pagamentos para ter a visão completa da transação.
+            -- Aqui validamos se o valor pago bate com o valor do pedido.
+            Transacoes_Completas AS (
+                SELECT
+                    p.id_cliente,
+                    p.id_pedido,
+                    p.uf,
+                    p.data_criacao_pedido,
+                    p.valor_total_bruto_pedido,
+                    pg.forma_pagamento,
+                    pg.pagamento_aprovado,
+                    pg.eh_fraude_identificada,
+                    pg.score_fraude,
+                    -- Calcula o tempo de processamento do pagamento em horas
+                    date_diff('hour', p.data_criacao_pedido, pg.data_processamento) AS horas_para_processar,
+                    -- Flag para pedidos pagos com valor correto
+                    CASE
+                        WHEN pg.pagamento_aprovado AND pg.valor_pagamento >= p.valor_total_bruto_pedido THEN 1
+                        ELSE 0
+                    END AS pago_com_sucesso
+                FROM Pedidos_Agregados p
+                JOIN Pagamentos_Processados pg
+                    ON p.id_pedido = pg.id_pedido
+            ),
+
+            -- CTE 5: Calcula métricas agregadas por cliente, como LTV e data da primeira compra.
+            -- Usamos funções de janela (Window Functions) para identificar a primeira compra.
+            Sumario_Cliente_Base AS (
+                SELECT
+                    id_cliente,
+                    SUM(CASE WHEN pago_com_sucesso = 1 THEN valor_total_bruto_pedido ELSE 0 END) AS ltv_total,
+                    COUNT(DISTINCT id_pedido) AS total_pedidos_tentados,
+                    SUM(pago_com_sucesso) AS total_pedidos_pagos,
+                    AVG(score_fraude) AS media_score_fraude,
+                    SUM(CASE WHEN eh_fraude_identificada THEN 1 ELSE 0 END) AS contagem_fraudes_identificadas,
+                    AVG(CASE WHEN pago_com_sucesso = 1 THEN 1.0 ELSE 0.0 END) AS taxa_aprovacao_pagamento,
+                    
+                    -- Encontra a data da primeira compra paga de cada cliente
+                    MIN(CASE WHEN pago_com_sucesso = 1 THEN data_criacao_pedido END) OVER (
+                        PARTITION BY id_cliente
+                    ) AS data_primeira_compra_paga
+                    
+                FROM Transacoes_Completas
+                GROUP BY
+                    id_cliente
+            ),
+
+            -- CTE 6: Identifica as preferências de pagamento e interesse (as mais frequentes).
+            -- Usamos ROW_NUMBER() para rankear e selecionar a preferência principal.
+            Preferencias_Cliente AS (
+                SELECT
+                    id_cliente,
+                    forma_pagamento_preferida,
+                    interesse_principal
+                FROM (
+                    SELECT
+                        t.id_cliente,
+                        -- Rankeia a forma de pagamento mais usada em compras PAGAS
+                        FIRST_VALUE(t.forma_pagamento) OVER (
+                            PARTITION BY t.id_cliente 
+                            ORDER BY COUNT(CASE WHEN t.pago_com_sucesso = 1 THEN t.id_pedido END) DESC
+                            ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+                        ) AS forma_pagamento_preferida,
+                        
+                        -- Rankeia o interesse mais comum (baseado no UNNEST da CTE 3)
+                        FIRST_VALUE(c.item_interesse) OVER (
+                            PARTITION BY t.id_cliente 
+                            ORDER BY COUNT(c.item_interesse) DESC
+                            ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+                        ) AS interesse_principal,
+                        
+                        -- Usamos ROW_NUMBER para desduplicar a seleção (apenas 1 linha por cliente)
+                        ROW_NUMBER() OVER (PARTITION BY t.id_cliente) AS rn
+                        
+                    FROM Transacoes_Completas t
+                    JOIN Clientes_Enriquecidos c
+                        ON t.id_cliente = c.id_cliente
+                    GROUP BY
+                        t.id_cliente, t.forma_pagamento, c.item_interesse
+                )
+                WHERE rn = 1 -- Pega apenas a primeira linha (já contém os dados preferenciais)
+            ),
+
+            -- CTE 7: Filtra e classifica os clientes "VIP".
+            -- VIPs são definidos como os 10% clientes com maior LTV (Top 10 Percentil).
+            Clientes_VIP_Coorte_2024 AS (
+                SELECT
+                    s.id_cliente,
+                    s.ltv_total,
+                    s.total_pedidos_tentados,
+                    s.total_pedidos_pagos,
+                    s.media_score_fraude,
+                    s.taxa_aprovacao_pagamento,
+                    s.contagem_fraudes_identificadas,
+                    
+                    -- Função de Percentil (exclusiva de Trino/Athena)
+                    NTILE(10) OVER (ORDER BY s.ltv_total DESC) AS decil_ltv
+                    
+                FROM Sumario_Cliente_Base s
+                WHERE 
+                    -- Filtra a Coorte: Apenas clientes cuja primeira compra foi em 2024
+                    s.data_primeira_compra_paga BETWEEN TIMESTAMP '2024-01-01 00:00:00' AND TIMESTAMP '2024-12-31 23:59:59'
+            )
+
+            -- Query Final: Junta todas as informações para o relatório gerencial.
+            SELECT
+                -- Dados do Cliente
+                vip.id_cliente,
+                c_info.nome,
+                c_info.faixa_etaria,
+                pref.interesse_principal,
+                
+                -- Métricas de Valor
+                vip.ltv_total,
+                -- Cálculo do Ticket Médio (LTV / Pedidos Pagos)
+                CASE 
+                    WHEN vip.total_pedidos_pagos > 0 THEN (vip.ltv_total / vip.total_pedidos_pagos)
+                    ELSE 0 
+                END AS ticket_medio,
+                
+                -- Métricas de Pagamento e Risco
+                pref.forma_pagamento_preferida,
+                vip.taxa_aprovacao_pagamento,
+                vip.media_score_fraude,
+                vip.contagem_fraudes_identificadas,
+                
+                -- Métricas de Engajamento
+                vip.total_pedidos_tentados,
+                vip.total_pedidos_pagos,
+                
+                -- Métrica Geográfica (UF do primeiro pedido do cliente)
+                (
+                    SELECT t.uf 
+                    FROM Transacoes_Completas t
+                    WHERE t.id_cliente = vip.id_cliente
+                    ORDER BY t.data_criacao_pedido ASC
+                    LIMIT 1
+                ) AS uf_primeira_compra
+
+            FROM Clientes_VIP_Coorte_2024 vip
+
+            -- Junta com as informações de perfil (considerando apenas uma linha por cliente)
+            JOIN (
+                SELECT DISTINCT id_cliente, nome, faixa_etaria FROM Clientes_Enriquecidos
+            ) c_info
+                ON vip.id_cliente = c_info.id_cliente
+
+            -- Junta com as preferências
+            JOIN Preferencias_Cliente pref
+                ON vip.id_cliente = pref.id_cliente
+
+            WHERE
+                -- Filtra apenas o Decil 1 (Top 10% VIPs)
+                vip.decil_ltv = 1
+                
+            ORDER BY
+                vip.ltv_total DESC,
+                vip.media_score_fraude ASC;
+            ``` 
         
         Pense passo a passo: 
         1. Analise o que a query faz. 
