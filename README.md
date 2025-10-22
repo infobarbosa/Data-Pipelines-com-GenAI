@@ -546,8 +546,7 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
 
     ```
 
-    #### **Few-Shot**: Fornecer um ou mais exemplos de "entrada -> saída" antes de fazer o pedido final. Isso ensina o modelo o *padrão* exato que você deseja.
-
+    #### **Few-Shot**:
     ```
 
     Escreva um script PySpark que leia os arquivos na pasta ./data/input,
