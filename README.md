@@ -190,8 +190,15 @@ A IA pode gerar a resposta correta no formato errado (ex: prosa em vez de códig
 O primeiro prompt quase nunca é o final. A engenharia de prompt é um **diálogo iterativo**.
 
 * **Refinamento Pós-Resposta:** Usar a resposta da IA como parte do próximo prompt.
-    * *Exemplo 1:* "O código que você gerou está bom, mas você usou um RDD. Por favor, refatore para usar exclusivamente a API de DataFrames."
-    * *Exemplo 2:* "A documentação está incompleta. Adicione uma seção sobre como executar os testes automatizados."
+    * **Exemplo 1:** 
+    ```
+    O código que você gerou está bom, mas você usou um RDD. 
+    Por favor, refatore para usar exclusivamente a API de DataFrames.
+    ```
+    * **Exemplo 2:** 
+    ```
+    A documentação está incompleta. Adicione uma seção sobre como executar os testes automatizados.
+    ```
 
 
 ---
@@ -267,74 +274,79 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
 
 ### Exemplos de prompt
 1. Atribuição de Persona (Persona Setting):
-    *"Você é um engenheiro de dados sênior, especialista em otimização de performance no Apache Spark. Você escreve código PySpark limpo, idiomático e com alta performance."*
+
+    ```
+    Você é um engenheiro de dados sênior, especialista em otimização de performance no Apache Spark. 
+    Você escreve código PySpark limpo, idiomático e com alta performance.
+    ```
 
 2. Aprendizado no Contexto (In-Context Learning):
-    * Zero-Shot:
-        * *Exemplo:* 
-            "Escreva um script PySpark para ler os arquivos na pasta ./data/input, transformar em Parquet e armazenar na pasta ./data/output."
+    * **Zero-Shot**:
+    * **Exemplo:**
+    ```
+    Escreva um script PySpark para ler os arquivos na pasta ./data/input,
+    transformar em Parquet e armazenar na pasta ./data/output.
+    ```
+
+    * **Few-Shot**: Fornecer um ou mais exemplos de "entrada -> saída" antes de fazer o pedido final. Isso ensina o modelo o *padrão* exato que você deseja.
+    * **Exemplo:**
+    ```
+    Escreva um script PySpark para ler os arquivos na pasta ./data/input, transformar em Parquet e armazenar na pasta ./data/output.
+    - Dataset de clientes
+    - Localização: ./data/input/clientes.json.gz
+    - Formato: JSON
+    - Compressão: GZIP
+    - Leiaute:
+
+        | Atributo        | Tipo      | Obs                                               |
+        | ---             | ---       | ---                                               |
+        | ID              | long      | O identificador da pessoa                         |
+        | NOME            | string    | O nome da pessoa                                  |
+        | DATA_NASC       | date      | A data de nascimento da pessoa                    |
+        | CPF             | string    | O CPF da pessoa                                   |
+        | EMAIL           | string    | O email da pessoa                                 |
+        | INTERESSES      | object    | Um array com a lista de interesses da pessoa      |
+
+    - Sample:
+        { "id": 1, "nome": "Isabelly Barbosa", "data_nasc": "1963-08-15", "cpf": "137.064.289-03", "email": "isabelly.barbosa@gmail.com", "interesses": ["Política", "Economia"] }
+        { "id": 2, "nome": "Larissa Fogaça", "data_nasc": "1933-09-29", "cpf": "703.685.294-10", "email": "larissa.fogaca@example.com", "interesses": ["Música", "Viagens", "Gastronomia"] }
+        { "id": 3, "nome": "João Gabriel Silveira", "data_nasc": "1958-05-27", "cpf": "520.179.643-52", "email": "joao.gabriel.silveira@example.com", "interesses": ["Ciências", "Inteligência Artificial"] }
     
-    * Few-Shot: Fornecer um ou mais exemplos de "entrada -> saída" antes de fazer o pedido final. Isso ensina o modelo o *padrão* exato que você deseja.
-        * *Exemplo:* 
-            Escreva um script PySpark para ler os arquivos na pasta ./data/input, transformar em Parquet e armazenar na pasta ./data/output.
-            - Dataset de clientes
-            - Localização: ./data/input/clientes.json.gz
-            - Formato: JSON
-            - Compressão: GZIP
-            - Leiaute:
+    - Dataset de pedidos de venda
+    - Localização: ./data/input/pedidos.gz
+    - Separador: ";"
+    - Header: True
+    - Compressão: gzip
+    - Leiaute:
+        | Atributo        | Tipo      | Obs                                               | 
+        | ---             | ---       | ---                                               |
+        | ID_PEDIDO       | string    | O identificador do pedido                         | 
+        | PRODUTO         | string    | O nome do produto no pedido                       | 
+        | VALOR_UNITARIO  | float     | O valor unitário do produto no pedido             | 
+        | QUANTIDADE      | long      | A quantidade do produto no pedido                 | 
+        | DATA_CRIACAO    | timestamp | A data da criação do pedido                       | 
+        | UF              | string    | A sigla da unidade federativa (estado) no Brasil  | 
+        | ID_CLIENTE      | long      | O identificador do cliente                        | 
+        
+        **Atenção!** `ID_PEDIDO` é definido como `string` mas sua formatação segue a especificação UUID.
 
-                | Atributo        | Tipo      | Obs                                               |
-                | ---             | ---       | ---                                               |
-                | ID              | long      | O identificador da pessoa                         |
-                | NOME            | string    | O nome da pessoa                                  |
-                | DATA_NASC       | date      | A data de nascimento da pessoa                    |
-                | CPF             | string    | O CPF da pessoa                                   |
-                | EMAIL           | string    | O email da pessoa                                 |
-                | INTERESSES      | object    | Um array com a lista de interesses da pessoa      |
+    - Sample
 
-            - Sample:
-                ```json
-                { "id": 1, "nome": "Isabelly Barbosa", "data_nasc": "1963-08-15", "cpf": "137.064.289-03", "email": "isabelly.barbosa@gmail.com", "interesses": ["Política", "Economia"] }
-                { "id": 2, "nome": "Larissa Fogaça", "data_nasc": "1933-09-29", "cpf": "703.685.294-10", "email": "larissa.fogaca@example.com", "interesses": ["Música", "Viagens", "Gastronomia"] }
-                { "id": 3, "nome": "João Gabriel Silveira", "data_nasc": "1958-05-27", "cpf": "520.179.643-52", "email": "joao.gabriel.silveira@example.com", "interesses": ["Ciências", "Inteligência Artificial"] }
+        id_pedido;produto;valor_unitario;quantidade;data_criacao;uf;id_cliente
 
-                ```            
-            
-            - Dataset de pedidos de venda
-            - Localização: ./data/input/pedidos.gz
-            - Separador: ";"
-            - Header: True
-            - Compressão: gzip
-            - Leiaute:
-                | Atributo        | Tipo      | Obs                                               | 
-                | ---             | ---       | ---                                               |
-                | ID_PEDIDO       | string    | O identificador do pedido                         | 
-                | PRODUTO         | string    | O nome do produto no pedido                       | 
-                | VALOR_UNITARIO  | float     | O valor unitário do produto no pedido             | 
-                | QUANTIDADE      | long      | A quantidade do produto no pedido                 | 
-                | DATA_CRIACAO    | timestamp | A data da criação do pedido                       | 
-                | UF              | string    | A sigla da unidade federativa (estado) no Brasil  | 
-                | ID_CLIENTE      | long      | O identificador do cliente                        | 
-                
-                **Atenção!** `ID_PEDIDO` é definido como `string` mas sua formatação segue a especificação UUID.
+        fdd7933e-ce3a-4475-b29d-f239f491a0e7;MONITOR;600;3;2024-01-01T22:26:32;RO;12414
+        fe0f547a-69f3-4514-adee-8f4299f152af;MONITOR;600;2;2024-01-01T16:01:26;SP;11750
+        fe4f2b05-1150-43d8-b86a-606bd55bc72c;NOTEBOOK;1500;1;2024-01-01T06:49:21;RR;1195
+        fe8f5b08-160b-490b-bcb3-c86df6d2e53b;GELADEIRA;2000;1;2024-01-01T04:14:54;AC;8433
+        feaf3652-e1bd-4150-957e-ee6c3f62e11e;HOMETHEATER;500;2;2024-01-01T10:33:09;SP;12231
+        feb1efc5-9dd7-49a5-a9c7-626c2de3e029;CELULAR;1000;2;2024-01-01T13:48:39;SC;2340
+        ff181456-d587-4abd-a0ac-a8e6e33b87d5;TABLET;1100;1;2024-01-01T21:28:47;RS;12121
+        ff3bc5e0-c49a-46c5-a874-3eb6c8289fd1;HOMETHEATER;500;1;2024-01-01T22:31:35;SC;6907
+        ff4fcf5f-ca8a-4bc4-8d17-995ecaab3110;SOUNDBAR;900;3;2024-01-01T19:33:08;RJ;9773
+        ff703483-e564-4883-bdb5-0e25d8d9a006;NOTEBOOK;1500;3;2024-01-01T00:22:32;RN;2044
+        ffe4d6ad-3830-45af-a599-d09daaeb5f75;HOMETHEATER;500;3;2024-01-01T02:55:59;MS;3846
 
-            - Sample
-                ```csv
-                id_pedido;produto;valor_unitario;quantidade;data_criacao;uf;id_cliente
-
-                fdd7933e-ce3a-4475-b29d-f239f491a0e7;MONITOR;600;3;2024-01-01T22:26:32;RO;12414
-                fe0f547a-69f3-4514-adee-8f4299f152af;MONITOR;600;2;2024-01-01T16:01:26;SP;11750
-                fe4f2b05-1150-43d8-b86a-606bd55bc72c;NOTEBOOK;1500;1;2024-01-01T06:49:21;RR;1195
-                fe8f5b08-160b-490b-bcb3-c86df6d2e53b;GELADEIRA;2000;1;2024-01-01T04:14:54;AC;8433
-                feaf3652-e1bd-4150-957e-ee6c3f62e11e;HOMETHEATER;500;2;2024-01-01T10:33:09;SP;12231
-                feb1efc5-9dd7-49a5-a9c7-626c2de3e029;CELULAR;1000;2;2024-01-01T13:48:39;SC;2340
-                ff181456-d587-4abd-a0ac-a8e6e33b87d5;TABLET;1100;1;2024-01-01T21:28:47;RS;12121
-                ff3bc5e0-c49a-46c5-a874-3eb6c8289fd1;HOMETHEATER;500;1;2024-01-01T22:31:35;SC;6907
-                ff4fcf5f-ca8a-4bc4-8d17-995ecaab3110;SOUNDBAR;900;3;2024-01-01T19:33:08;RJ;9773
-                ff703483-e564-4883-bdb5-0e25d8d9a006;NOTEBOOK;1500;3;2024-01-01T00:22:32;RN;2044
-                ffe4d6ad-3830-45af-a599-d09daaeb5f75;HOMETHEATER;500;3;2024-01-01T02:55:59;MS;3846
-
-                ```
+    ```
 
 ---
 
