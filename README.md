@@ -188,10 +188,11 @@ A IA pode gerar a resposta correta no formato errado (ex: prosa em vez de códig
     * **Exemplo 2:**
         <p align="center"><strong>***</strong></p>
 
+        ```
         Você é um especialista em otimização de Apache Spark. \
         Analise este plano de execução físico de uma query Spark. \
         Identifique os principais gargalos de performance (ex: Shuffles, Scans) e explique, em termos de negócio, por que a query está lenta e sugira uma otimização no código PySpark original.
-        ```
+        ````
         == Physical Plan ==
         *(5) SortMergeJoin [id#10], [id#25], Inner
         :- *(2) Sort [id#10 ASC NULLS FIRST], false, 0
@@ -200,8 +201,10 @@ A IA pode gerar a resposta correta no formato errado (ex: prosa em vez de códig
         +- *(4) Sort [id#25 ASC NULLS FIRST], false, 0
         :  +- Exchange hashpartitioning(id#25, 200), true, [id=#111]
         :     +- *(3) FileScan parquet [id#25,venda#26] ...
+        ````
         ```
         <p align="center"><strong>***</strong></p>
+
 
     * **Exemplo 3**: 
         <p align="center"><strong>***</strong></p>
