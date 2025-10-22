@@ -282,15 +282,17 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
 
 2. Aprendizado no Contexto (In-Context Learning):
     * **Zero-Shot**:
-    * **Exemplo:**
-    ```
+    <p align="center"><strong>***Exemplo de prompt***</strong></p>
+
     Escreva um script PySpark para ler os arquivos na pasta ./data/input,
     transformar em Parquet e armazenar na pasta ./data/output.
-    ```
+
+    <p align="center"><strong>***Fim do prompt***</strong></p>
 
     * **Few-Shot**: Fornecer um ou mais exemplos de "entrada -> saída" antes de fazer o pedido final. Isso ensina o modelo o *padrão* exato que você deseja.
-    * **Exemplo:**
-    ```
+
+    <p align="center"><strong>***Exemplo de prompt***</strong></p>
+
     Escreva um script PySpark que leia os arquivos na pasta ./data/input,
     transforme em Parquet e armazene o resultado na pasta ./data/output.
     - Dataset de clientes
@@ -298,7 +300,7 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
     - Formato: JSON
     - Compressão: GZIP
     - Leiaute:
-
+        ```
         | Atributo        | Tipo      | Obs                                               |
         | ---             | ---       | ---                                               |
         | ID              | long      | O identificador da pessoa                         |
@@ -307,18 +309,20 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
         | CPF             | string    | O CPF da pessoa                                   |
         | EMAIL           | string    | O email da pessoa                                 |
         | INTERESSES      | object    | Um array com a lista de interesses da pessoa      |
-
+        ```
     - Sample:
+        ```
         { "id": 1, "nome": "Isabelly Barbosa", "data_nasc": "1963-08-15", "cpf": "137.064.289-03", "email": "isabelly.barbosa@gmail.com", "interesses": ["Política", "Economia"] }
         { "id": 2, "nome": "Larissa Fogaça", "data_nasc": "1933-09-29", "cpf": "703.685.294-10", "email": "larissa.fogaca@example.com", "interesses": ["Música", "Viagens", "Gastronomia"] }
         { "id": 3, "nome": "João Gabriel Silveira", "data_nasc": "1958-05-27", "cpf": "520.179.643-52", "email": "joao.gabriel.silveira@example.com", "interesses": ["Ciências", "Inteligência Artificial"] }
-    
+        ```
     - Dataset de pedidos de venda
     - Localização: ./data/input/pedidos.gz
     - Separador: ";"
     - Header: True
     - Compressão: gzip
     - Leiaute:
+        ```
         | Atributo        | Tipo      | Obs                                               | 
         | ---             | ---       | ---                                               |
         | ID_PEDIDO       | string    | O identificador do pedido                         | 
@@ -328,11 +332,11 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
         | DATA_CRIACAO    | timestamp | A data da criação do pedido                       | 
         | UF              | string    | A sigla da unidade federativa (estado) no Brasil  | 
         | ID_CLIENTE      | long      | O identificador do cliente                        | 
-        
+        ```
         **Atenção!** `ID_PEDIDO` é definido como `string` mas sua formatação segue a especificação UUID.
 
     - Sample
-
+        ```
         id_pedido;produto;valor_unitario;quantidade;data_criacao;uf;id_cliente
 
         fdd7933e-ce3a-4475-b29d-f239f491a0e7;MONITOR;600;3;2024-01-01T22:26:32;RO;12414
@@ -346,8 +350,9 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
         ff4fcf5f-ca8a-4bc4-8d17-995ecaab3110;SOUNDBAR;900;3;2024-01-01T19:33:08;RJ;9773
         ff703483-e564-4883-bdb5-0e25d8d9a006;NOTEBOOK;1500;3;2024-01-01T00:22:32;RN;2044
         ffe4d6ad-3830-45af-a599-d09daaeb5f75;HOMETHEATER;500;3;2024-01-01T02:55:59;MS;3846
+        ```
+    <p align="center"><strong>***Fim do prompt***</strong></p>
 
-    ```
 
 ---
 
@@ -355,7 +360,8 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
 
 ### Exemplos de prompt
 1. Clientes
-    ```
+    <p align="center"><strong>***Exemplo de prompt***</strong></p>
+
     DEFINA o schema para o DataFrame de clientes em PySpark. 
     Gere o código Python que define um objeto StructType chamado schema_clientes com os seguintes campos: 
     - id (LongType)
@@ -366,10 +372,12 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
     - interesses (ArrayType de StringType). 
     
     Inclua os imports necessários.
-    ```
+    <p align="center"><strong>***Fim do prompt***</strong></p>
+
 
 2. Pedidos
-    ```
+    <p align="center"><strong>***Exemplo de prompt***</strong></p>
+
     DEFINA o schema para o DataFrame de pedidos em PySpark. 
     Gere o código PySpark para um StructType chamado schema_pedidos que contenha os campos: 
     - id_pedido (StringType) 
@@ -379,7 +387,8 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
     - data_criacao (TimestampType)
     - uf (StringType)
     - id_cliente (LongType)."
-    ```
+    <p align="center"><strong>***Fim do prompt***</strong></p>
+
 
 ---
 
