@@ -107,7 +107,8 @@ O erro mais comum é assumir que a IA sabe do que você está falando. Um engenh
     * **Exemplo:**
     ```
     Meu script PySpark falhou com o seguinte erro. 
-    Analise o *stack trace* e me dê 3 possíveis causas e como corrigi-las. [COLE O STACK TRACE COMPLETO AQUI]
+    Analise o *stack trace* e me dê 3 possíveis causas e como corrigi-las. 
+    [COLE O STACK TRACE COMPLETO AQUI]
     ```
 
 * **Restrições e Requisitos:** Seja explícito sobre as "regras do jogo".
@@ -126,27 +127,48 @@ A IA pode gerar a resposta correta no formato errado (ex: prosa em vez de códig
 
 * **Solicitação de Formato Específico:** Diga explicitamente como você quer a resposta.
     * **Exemplo para Documentação:** 
-        ```
-        Gere a documentação para este projeto no formato `README.md`. Inclua as seções: 'Objetivo', 'Como Instalar' (usando pip) e 'Exemplo de Uso'.
-        ```
+    ```
+    Gere a documentação para este projeto no formato `README.md`. 
+    Inclua as seções: 'Objetivo', 'Como Instalar' (usando pip) e 'Exemplo de Uso'.
+    ```
     * **Exemplo para Testes:** 
-        ```
-        Gere a saída em um bloco de código Python. A resposta deve ser um arquivo `test_pipeline.py` completo, usando `pytest` e `pytest-spark`.
-        ```
+    ```
+    Gere a saída em um bloco de código Python. A resposta deve ser 
+    um arquivo `test_pipeline.py` completo, usando `pytest` e `pytest-spark`.
+    ```
     * **Exemplo para Dados:** 
-        ```
-        Gere 5 linhas de dados sintéticos (mock data) para este schema. A saída deve ser no formato JSON."
-        ```
+    ```
+    Gere 5 linhas de dados sintéticos (mock data) para este schema. 
+    A saída deve ser no formato JSON."
+    ```
 
 #### 4. Técnicas de Raciocínio (Debugging e Otimização)
 
 * **Cadeia de Pensamento (Chain-of-Thought - CoT):** Para problemas complexos, em vez de pedir a resposta final, peça para a IA "pensar passo a passo". Isso força o modelo a detalhar sua lógica, o que geralmente leva a uma resposta melhor e permite que você identifique onde o raciocínio falhou.
-    * *Exemplo:* "Estou tentando otimizar esta query Spark SQL: `[QUERY LENTA]`. Pense passo a passo: 1. Analise o que a query faz. 2. Identifique potenciais gargalos de performance (ex: joins cartesianos, falta de filtros). 3. Sugira uma versão otimizada da query e explique *por que* ela é mais rápida."
+    * **Exemplo:** 
+    ```
+    Estou tentando otimizar esta query Spark SQL: 
+    `[QUERY LENTA]` 
+    
+    Pense passo a passo: 
+    1. Analise o que a query faz. 
+    2. Identifique potenciais gargalos de performance (ex: joins cartesianos, falta de filtros). 
+    3. Sugira uma versão otimizada da query e explique *por que* ela é mais rápida."
+    ```
 
 * **Explicação de Código (Code Elucidation):** é o processo de usar um modelo de GenAI para traduzir um bloco de código complexo, obscuro ou desconhecido em uma explicação clara, concisa e em linguagem natural.
-    * *Exemplo 1:* "Explique este trecho de código linha por linha."
-    * *Exemplo 2:* "Você é um especialista em otimização de Apache Spark. Analise este plano de execução físico de uma query Spark. Identifique os principais gargalos de performance (ex: Shuffles, Scans) e explique, em termos de negócio, por que a query está lenta e sugira uma otimização no código PySpark original."
+    * **Exemplo 1:**
     ```
+    Explique este trecho de código linha por linha.
+    ```
+    * **Exemplo 2:**
+    ```
+    Você é um especialista em otimização de Apache Spark. 
+    Analise este plano de execução físico de uma query Spark. 
+    Identifique os principais gargalos de performance (ex: Shuffles, Scans) 
+    e explique, em termos de negócio, por que a query está lenta 
+    e sugira uma otimização no código PySpark original.
+
     == Physical Plan ==
     *(5) SortMergeJoin [id#10], [id#25], Inner
     :- *(2) Sort [id#10 ASC NULLS FIRST], false, 0
@@ -156,7 +178,12 @@ A IA pode gerar a resposta correta no formato errado (ex: prosa em vez de códig
     :  +- Exchange hashpartitioning(id#25, 200), true, [id=#111]
     :     +- *(3) FileScan parquet [id#25,venda#26] ...
     ```
-    * *Exemplo 3*: "Quebre esta expressão regular em partes e explique em detalhes o que ela está tentando validar ou extrair: `(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})Z\s+\[(ERROR|WARN)\]\s+(.*)`
+    * **Exemplo 3**: 
+    ```
+    Quebre esta expressão regular em partes e explique em detalhes o 
+    que ela está tentando validar ou extrair: 
+    `(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})Z\s+\[(ERROR|WARN)\]\s+(.*)`
+    ```
 
 #### 5. Iteração e Refinamento
 
