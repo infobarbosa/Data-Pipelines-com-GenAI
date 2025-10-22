@@ -270,28 +270,30 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
     ```
 ---
 
-## Passo 2: 
+## Passo 2: Inicializando o projeto
 
 ### Exemplos de prompt
 1. Atribuição de Persona (Persona Setting):
 
-    ```
+    <p align="center"><strong>***</strong></p>
+
     Você é um engenheiro de dados sênior, especialista em otimização de performance no Apache Spark. 
     Você escreve código PySpark limpo, idiomático e com alta performance.
-    ```
+    <p align="center"><strong>***</strong></p>
+
 
 2. Aprendizado no Contexto (In-Context Learning):
     * **Zero-Shot**:
-    <p align="center"><strong>***Exemplo de prompt***</strong></p>
+    <p align="center"><strong>***</strong></p>
 
     Escreva um script PySpark para ler os arquivos na pasta ./data/input,
     transformar em Parquet e armazenar na pasta ./data/output.
 
-    <p align="center"><strong>***Fim do prompt***</strong></p>
+    <p align="center"><strong>***</strong></p>
 
     * **Few-Shot**: Fornecer um ou mais exemplos de "entrada -> saída" antes de fazer o pedido final. Isso ensina o modelo o *padrão* exato que você deseja.
 
-    <p align="center"><strong>***Exemplo de prompt***</strong></p>
+    <p align="center"><strong>***</strong></p>
 
     Escreva um script PySpark que leia os arquivos na pasta ./data/input,
     transforme em Parquet e armazene o resultado na pasta ./data/output.
@@ -351,7 +353,7 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
         ff703483-e564-4883-bdb5-0e25d8d9a006;NOTEBOOK;1500;3;2024-01-01T00:22:32;RN;2044
         ffe4d6ad-3830-45af-a599-d09daaeb5f75;HOMETHEATER;500;3;2024-01-01T02:55:59;MS;3846
         ```
-    <p align="center"><strong>***Fim do prompt***</strong></p>
+    <p align="center"><strong>***</strong></p>
 
 
 ---
@@ -360,7 +362,7 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
 
 ### Exemplos de prompt
 1. Clientes
-    <p align="center"><strong>***Exemplo de prompt***</strong></p>
+    <p align="center"><strong>***</strong></p>
 
     DEFINA o schema para o DataFrame de clientes em PySpark. 
     Gere o código Python que define um objeto StructType chamado schema_clientes com os seguintes campos: 
@@ -372,11 +374,11 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
     - interesses (ArrayType de StringType). 
     
     Inclua os imports necessários.
-    <p align="center"><strong>***Fim do prompt***</strong></p>
+    <p align="center"><strong>***</strong></p>
 
 
 2. Pedidos
-    <p align="center"><strong>***Exemplo de prompt***</strong></p>
+    <p align="center"><strong>***</strong></p>
 
     DEFINA o schema para o DataFrame de pedidos em PySpark. 
     Gere o código PySpark para um StructType chamado schema_pedidos que contenha os campos: 
@@ -387,7 +389,7 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
     - data_criacao (TimestampType)
     - uf (StringType)
     - id_cliente (LongType)."
-    <p align="center"><strong>***Fim do prompt***</strong></p>
+    <p align="center"><strong>***</strong></p>
 
 
 ---
@@ -396,7 +398,7 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
 
 
 
-<p align="center"><strong>***Exemplo de prompt***</strong></p>
+<p align="center"><strong>***</strong></p>
 
 Seu objetivo é ter uma única base de código PySpark que possa ser executada em múltiplos
 ambientes (ex: desenvolvimento, homologação, produção) sem qualquer alteração no
@@ -421,14 +423,14 @@ mais legíveis que JSON para configurações complexas).
     g. Importante: Demonstre como "mesclar" as configurações comuns com as configurações específicas do ambiente selecionado.
     h. Sugira bibliotecas Python recomendadas para esta tarefa (como PyYAML para parsing e Pydantic para validação e tipagem da configuração, garantindo que os tipos de dados esperados estejam corretos).    
 
-<p align="center"><strong>***Fim do prompt***</strong></p>
+<p align="center"><strong>***</strong></p>
 
 
 ---
 
 ## Passo 5: Sessão Spark
 
-### Exemplo de prompt
+<p align="center"><strong>***</strong></p>
 
 Sua tarefa é projetar e implementar um módulo Python para o gerenciamento centralizado da `SparkSession` em um projeto de engenharia de dados em larga escala.
 
@@ -456,11 +458,13 @@ O design deve priorizar:
 3.  Mais importante: forneça um exemplo de como um teste unitário (`test_meu_job.py`) usando `pytest` e `pytest-mock` poderia "mockar" a sessão Spark para testar a lógica de negócios sem iniciar um cluster Spark real.
 4.  Justifique brevemente sua escolha de design (ex: por que uma classe de fábrica é melhor que um singleton global para testabilidade).
 
+<p align="center"><strong>***</strong></p>
+
 ---
 
 ## Passo 6: Leitura e Escrita de Dados (I/O)
 
-### Exemplo de prompt
+<p align="center"><strong>***</strong></p>
 
 Sua tarefa é projetar e implementar um módulo Python de I/O (Data Access Layer) genérico, configurável e testável para PySpark. O objetivo principal é **abstrair completamente** a lógica de leitura (`.read`) e escrita (`.write`) dos scripts de ETL.
 
@@ -496,11 +500,13 @@ Sua tarefa é projetar e implementar um módulo Python de I/O (Data Access Layer
 4.  **Exemplo de Teste (O Ponto Crítico):** Um `test_meu_job.py` usando `pytest` e `pytest-mock` (ou o `unittest.mock`) que testa a lógica de negócio do `meu_job.py`. O teste DEVE mockar o `DataIOManager.read_data` para retornar um DataFrame de teste criado manualmente.
 5.  **Justificativa:** Explique brevemente por que o padrão Factory/Strategy é superior a um `if/elif` gigante dentro do método `read_data`.
 
+<p align="center"><strong>***</strong></p>
+
 ---
 
 ## Passo 7: Lógica de Negócio e Orquestração
 
-### Exemplo de prompt
+<p align="center"><strong>***</strong></p>
 
 Sua tarefa é projetar e implementar um módulo Python para a lógica de negócios (transformação) de um pipeline de ETL. O design deve seguir rigorosamente o princípio da **Separação de Preocupações**, onde a lógica de transformação é 100% isolada das camadas de I/O (leitura/escrita).
 
@@ -562,11 +568,13 @@ O objetivo é calcular o "Top 10 Clientes por Valor Total de Vendas".
 
 4.  **Justificativa:** Explique por que essa separação entre a lógica de transformação pura e o "job orquestrador" de I/O é a base do TDD em PySpark.
 
+<p align="center"><strong>***</strong></p>
+
 ---
 
 ## Passo 8: Clean Code
 
-### Exemplo de prompt
+<p align="center"><strong>***</strong></p>
 
 Sua tarefa final é **integrar** todos esses módulos em um projeto coeso, pronto para produção, aplicando os princípios de **Clean Architecture** e **InjeIção de Dependência (DI)**. O objetivo é o **desacoplamento total**.
 
@@ -613,11 +621,13 @@ Sua tarefa final é **integrar** todos esses módulos em um projeto coeso, pront
     * `jobs/run_top_10_clientes.py`, mostrando a função `run_job` que agora recebe suas dependências (DI).
 4.  **Exemplo de `config.yaml`:** Mostre um exemplo de arquivo de configuração que o `core/config.py` leria.
 
+<p align="center"><strong>***</strong></p>
+
 ---
 
 ## Passo 9: Empacotamento
 
-### Exemplo de prompt
+<p align="center"><strong>***</strong></p>
 
 **Contexto:**
 Temos um projeto PySpark multi-módulo (`core/`, `transforms/`, `jobs/`, `utils/`, `main.py`) que segue os princípios de Clean Architecture. O projeto tem dependências de produção (ex: `pyspark`, `pyyaml`) e dependências de desenvolvimento (ex: `pytest`, `pytest-mock`, `black`).
@@ -677,11 +687,13 @@ Criar todos os artefatos de configuração e scripts necessários para **empacot
 6.  Forneça exemplos de comandos para o build
 7.  Forneça exemplos de submissão do job (`spark-submit ...`) em um ambiente de produção.
 
+<p align="center"><strong>***</strong></p>
+
 ---
 
 ## Passo 10: README.md
 
-### Exemplo de prompt
+<p align="center"><strong>***</strong></p>
 
 Sua tarefa é gerar o arquivo `README.md` completo (em Markdown) para o projeto PySpark que acabamos de arquitetar. O tom deve ser profissional, claro e direto.
 
@@ -747,10 +759,13 @@ Sua tarefa é gerar o arquivo `README.md` completo (em Markdown) para o projeto 
 
 Gere o `README.md` completo com base nessas diretrizes.
 
+<p align="center"><strong>***</strong></p>
 
 
 ---
-## Playbooks de GenAI para Projetos PySpark: Automatizando o Ciclo de Vida de Desenvolvimento
+## Playbooks de GenAI para Projetos PySpark 
+
+### Automatizando o Ciclo de Vida de Desenvolvimento
 
 No universo de desenvolvimento de software, especialmente em projetos que utilizam PySpark para processamento de grandes volumes de dados, os **playbooks para uso de GenAI** emergem como guias estratégicos e práticos para a automação de diversas fases do ciclo de vida de desenvolvimento. Estes playbooks não são ferramentas únicas, mas sim um conjunto de diretrizes, melhores práticas e fluxos de trabalho que integram modelos de linguagem de grande escala (LLMs) e outras técnicas de Inteligência Artificial Generativa para otimizar a criação de código, testes automatizados e a geração de massa de dados para testes.
 
