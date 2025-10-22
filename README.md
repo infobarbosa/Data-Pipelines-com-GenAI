@@ -385,9 +385,9 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
 
 ## Passo 4: Configurações centralizadas
 
-### Exemplo de prompt
 
-<p align="center"><strong>***</strong></p>
+
+<p align="center"><strong>***Exemplo de prompt***</strong></p>
 
 Seu objetivo é ter uma única base de código PySpark que possa ser executada em múltiplos
 ambientes (ex: desenvolvimento, homologação, produção) sem qualquer alteração no
@@ -412,7 +412,8 @@ mais legíveis que JSON para configurações complexas).
     g. Importante: Demonstre como "mesclar" as configurações comuns com as configurações específicas do ambiente selecionado.
     h. Sugira bibliotecas Python recomendadas para esta tarefa (como PyYAML para parsing e Pydantic para validação e tipagem da configuração, garantindo que os tipos de dados esperados estejam corretos).    
 
-<p align="center"><strong>***</strong></p>
+<p align="center"><strong>***Fim do prompt***</strong></p>
+
 
 ---
 
