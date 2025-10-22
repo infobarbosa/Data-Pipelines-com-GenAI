@@ -291,7 +291,8 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
     * **Few-Shot**: Fornecer um ou mais exemplos de "entrada -> saída" antes de fazer o pedido final. Isso ensina o modelo o *padrão* exato que você deseja.
     * **Exemplo:**
     ```
-    Escreva um script PySpark para ler os arquivos na pasta ./data/input, transformar em Parquet e armazenar na pasta ./data/output.
+    Escreva um script PySpark que leia os arquivos na pasta ./data/input,
+    transforme em Parquet e armazene o resultado na pasta ./data/output.
     - Dataset de clientes
     - Localização: ./data/input/clientes.json.gz
     - Formato: JSON
