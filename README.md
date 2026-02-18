@@ -3,9 +3,6 @@
 - Contact: infobarbosa@gmail.com  
 - Github: [infobarbosa](https://github.com/infobarbosa)
 
-Este repositório é um guia passo a passo para criação de um projeto do zero utilizando IA generativa.
-
----
 
 ## Introdução
 
@@ -29,11 +26,15 @@ A importância da IA Generativa reside no seu potencial transformador em diversa
 
 ### Qual o impacto em produtividade em geração de código de sistemas?
 
-O impacto na produtividade da engenharia de software é um dos mais significativos e imediatos. Ferramentas de IA generativa, como assistentes de codificação (a exemplo do GitHub Copilot ou Amazon CodeWhisperer), atuam como "programadores em par" virtuais, acelerando drasticamente o ciclo de desenvolvimento.
+O impacto na produtividade da engenharia de software é um dos mais significativos e imediatos. Ferramentas de IA generativa, como assistentes de codificação (a exemplo do GitHub Copilot ou Google Gemini), atuam como "programadores em par" virtuais, acelerando drasticamente o ciclo de desenvolvimento.
 
 Os principais impactos incluem:
 
 1.  **Geração Rápida de Código:** Desenvolvedores podem descrever uma função ou lógica em linguagem natural (ex: "crie uma função em Python para ler um arquivo CSV e retornar a média da coluna 'idade'") e a IA gera o código correspondente em segundos.
+
+![Exemplo de Geração Automática de Código](./img/geracao-automatica-01.png)
+
+
 2.  **Autocompletar Inteligente:** Vai além do simples autocompletar de nomes de variáveis, sugerindo blocos inteiros de código com base no contexto do projeto, reduzindo o tempo de digitação e a carga cognitiva.
 3.  **Automatização de Tarefas Repetitivas:** Gera automaticamente código "boilerplate" (estruturas repetitivas), testes unitários, documentação (explicando o que uma função faz) e configurações de projetos.
 4.  **Auxílio na Depuração e Refatoração:** A IA pode analisar blocos de código, identificar possíveis bugs, sugerir otimizações (refatoração) ou até mesmo explicar o funcionamento de um código complexo que o desenvolvedor não escreveu.
@@ -77,7 +78,9 @@ Para um engenheiro, isso deixa de ser uma conversa casual e se torna um **proces
     * **Zero-Shot:** Fazer um pedido direto sem exemplos. Funciona para tarefas simples.
     * **Exemplo:** 
     ```
+    
     Escreva um script PySpark para ler um arquivo Parquet.
+    
     ```
 
 
@@ -485,7 +488,7 @@ ATENÇÃO! Se estiver utilizando AWS Cloud9, utilize esse [tutorial](https://git
     ```
 
     ```bash
-    echo 'pyspark==4.0.1' >> requirements.txt
+    echo 'pyspark==4.1.1' >> requirements.txt
     
     ```
 
@@ -1077,6 +1080,19 @@ Um playbook bem estruturado geralmente é dividido nas seguintes seções:
 5.  **Métricas de Sucesso:** Como medir o impacto da implementação da GenAI, por exemplo, através da redução do tempo de desenvolvimento, aumento da cobertura de testes e diminuição do número de bugs em produção.
 
 Em suma, os playbooks de GenAI para projetos PySpark são um roteiro para a modernização do desenvolvimento de software de dados, capacitando as equipes a entregar soluções mais robustas e inovadoras em um ritmo acelerado.
+
+---
+
+# Demos
+1. VSCode: auto-complete
+2. Github Copilot
+3. Antigravity
+4. Codex
+5. Devin
+6. Windsurf
+7. Gemini CLI
+
+---
 
 # Parabéns
 Parabéns por dominar a programação moderna em Engenharia de Dados, integrando de PySpark e Spark SQL ao poder da GenAI. Lembre-se que a Engenharia de Prompt é agora sua ferramenta mais estratégica para codificar, depurar e documentar com velocidade. Continue aprendendo e aplique essa produtividade para construir o futuro dos dados.<br>
