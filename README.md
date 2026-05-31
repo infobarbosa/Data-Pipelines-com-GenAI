@@ -1,3 +1,5 @@
+![Data Pipelines com GenAI](./img/geracao-automatica-01.png)
+
 # Data Pipelines com GenAI
 
 > Construindo um pipeline PySpark **dirigido por especificação** (Spec-Driven Development) com um agente de IA local (Ollama + Aider).
@@ -28,7 +30,7 @@ A ideia central: você **não vai prompar o agente passo a passo**. Você vai en
 - Acesso a um terminal Linux/macOS (ou **AWS Cloud9** — ver nota no setup)
 - Noções de PySpark e linha de comando
 
-> **Trilha do laboratório:** Conceitos (Parte 1) → Setup (Parte 2) → Lab Spec-Driven (Parte 3) → Validação (Parte 4). Os **Apêndices** (Parte 5) são leitura opcional de aprofundamento.
+> **Trilha do laboratório:** Conceitos (Parte 1) → Setup (Parte 2) → Lab Spec-Driven (Parte 3) → Validação (Parte 4). O **Apêndice** (Parte 5) é leitura opcional.
 
 ---
 
@@ -37,8 +39,6 @@ A ideia central: você **não vai prompar o agente passo a passo**. Você vai en
 ### 1.1 GenAI na engenharia de dados (em 1 minuto)
 
 A IA Generativa cria conteúdo novo — inclusive **código**. Para o engenheiro de dados, isso significa transformar descrições em linguagem natural em scripts PySpark, testes, configurações e documentação. Estudos de mercado (Bain, Gartner) apontam ganhos de produtividade de **20%–35%** em tarefas de codificação. O ponto de virada não é "a IA escreve código", e sim **como você a instrui**.
-
-> Aprofundamento teórico opcional no [Apêndice A](#apêndice-a--genai-e-playbooks-aprofundamento).
 
 ### 1.2 O que é Spec-Driven Development (SDD)
 
@@ -71,8 +71,6 @@ Mesmo no SDD, saber escrever boas instruções importa. As técnicas que mais pe
 - **Restrições explícitas:** declare as regras do jogo (ex.: "sem UDFs Python; use funções nativas do Spark; inclua type hints e docstrings").
 - **Formato de saída:** diga *como* quer a resposta (arquivo `.py`, bloco de teste `pytest`, etc.).
 - **Cadeia de pensamento (CoT):** para problemas complexos, peça ao agente para "pensar passo a passo" antes da resposta final.
-
-> Uma **galeria de prompts avançados** (incluindo um exemplo real de otimização de query SQL com CoT) está no [Apêndice B](#apêndice-b--galeria-de-prompts-avançados).
 
 No SDD, a maior parte dessas técnicas já vive **dentro do `AGENTS.md`** — por isso a spec é tão poderosa.
 
@@ -275,6 +273,14 @@ spark-submit ./src/main.py
 
 Confira a saída em `./data/output/top_10_clientes`. Esse é o critério da **Definição de Pronto** da spec.
 
+> **Quando der erro (e vai dar):** se o `spark-submit` falhar, não decifre o stack trace sozinho — entregue-o ao agente. Volte ao Aider e use um prompt assim:
+>
+> ```text
+> Meu spark-submit falhou com o stack trace abaixo. Analise-o e me dê as 3 causas
+> mais prováveis e como corrigir cada uma, respeitando os princípios do AGENTS.md.
+> [COLE O STACK TRACE COMPLETO]
+> ```
+
 ### 3.6 Itere a spec (o ciclo SDD na prática)
 
 A spec **não menciona empacotamento** (gerar um `.whl` distribuível). Em vez de improvisar prompts, vamos **evoluir a spec** e pedir o incremento ao agente.
@@ -330,88 +336,7 @@ Os testes verificam **correção da lógica**, não **correção do produto**. A
 
 ---
 
-## Parte 5 — Apêndices (leitura opcional)
-
-### Apêndice A — GenAI e Playbooks (aprofundamento)
-
-#### A.1 Por que a GenAI transforma a engenharia de software
-
-A IA Generativa atua como um "programador em par" virtual, acelerando o ciclo de desenvolvimento por meio de:
-
-1. **Geração rápida de código** a partir de linguagem natural.
-2. **Autocompletar inteligente** sensível ao contexto do projeto.
-3. **Automação de boilerplate**, testes e documentação.
-4. **Auxílio em depuração e refatoração**.
-5. **Tradução entre linguagens** (ex.: SQL → PySpark; COBOL → Java).
-6. **Redução da curva de aprendizado** de novas tecnologias.
-
-![Exemplo de Geração Automática de Código](./img/geracao-automatica-01.png)
-
-#### A.2 Playbooks de GenAI para projetos PySpark
-
-Um **playbook** é um conjunto de diretrizes que padroniza o uso de GenAI ao longo do ciclo de vida do desenvolvimento. Eixos principais:
-
-- **Geração de código:** prompts estruturados (schema de entrada → schema de saída → descrição da transformação); refinamento iterativo; migração de SQL/Pandas para PySpark.
-- **Geração de testes:** análise de funções existentes para derivar casos de teste, asserções e mocks; cobertura de casos de borda.
-- **Geração de dados sintéticos:** a partir do perfil estatístico dos dados de produção, gerar massa de teste realista sem expor dados sensíveis — útil para testes de performance e escalabilidade.
-
-**Estrutura típica de um playbook:** Visão geral e objetivos → Ferramentas e ambiente → Fluxos por atividade (dev, testes, dados) → Melhores práticas (engenharia de prompt, segurança/governança, **revisão humana**) → Métricas de sucesso.
-
-### Apêndice B — Galeria de prompts avançados
-
-#### B.1 Persona
-
-```text
-Você é um engenheiro de dados sênior, especialista em otimização de performance no
-Apache Spark. Você escreve código PySpark limpo, idiomático e com alta performance.
-```
-
-#### B.2 Few-shot (tradução SQL → PySpark)
-
-```text
-Eu quero converter queries SQL para código PySpark.
-Exemplo (SQL):     SELECT nome, idade FROM pessoas WHERE idade > 18
-Exemplo (PySpark): df.filter(col("idade") > 18).select("nome", "idade")
-Agora converta:    [SUA QUERY]
-```
-
-#### B.3 Fornecimento de schema
-
-```text
-Dado este schema de DataFrame Spark: [nome: string, data_nascimento: timestamp,
-vendas_totais: double], escreva um script PySpark que calcule a idade do cliente e o
-agrupe por década de nascimento, somando as vendas totais.
-```
-
-#### B.4 Debugging com stack trace
-
-```text
-Meu script PySpark falhou com o seguinte erro. Analise o stack trace e me dê 3 possíveis
-causas e como corrigi-las.
-[COLE O STACK TRACE COMPLETO]
-```
-
-#### B.5 Cadeia de pensamento (CoT) para otimização de query
-
-Para problemas complexos, peça ao agente para raciocinar antes de responder. Exemplo de prompt aplicado a uma query analítica real (clientes VIP de uma coorte, com CTEs, window functions e percentis):
-
-```text
-Estou tentando otimizar uma query Spark SQL complexa que:
-- agrega itens de pedidos em valor total por pedido;
-- enriquece pagamentos extraindo campos de um STRUCT de avaliação de fraude;
-- enriquece clientes (idade, faixa etária, UNNEST de interesses);
-- junta tudo, calcula LTV por cliente via window functions;
-- seleciona o decil superior (Top 10% por LTV) da coorte que fez a 1ª compra em 2024.
-
-Pense passo a passo:
-1. Analise o que a query faz.
-2. Identifique gargalos de performance (joins cartesianos, falta de filtros, shuffles).
-3. Sugira uma versão otimizada e explique POR QUE ela é mais rápida.
-```
-
-> O enunciado completo dessa query (≈200 linhas de SQL) costuma ser usado em sala como estudo de caso de CoT. O ponto pedagógico: forçar o modelo a **detalhar o raciocínio** melhora a resposta e expõe onde a lógica falha.
-
-### Apêndice C — Outras ferramentas de agente
+## Parte 5 — Apêndice: outras ferramentas de agente
 
 O fluxo deste lab usa **Aider + Ollama** (local, gratuito). Os mesmos princípios de SDD se aplicam a outras ferramentas — vale conhecer:
 
