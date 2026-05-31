@@ -102,17 +102,26 @@ O Aider usará a API local do Ollama. Garanta que ela responde:
 curl http://localhost:11434/api/tags
 ```
 
-### 2.4 Clonar o projeto base
+### 2.4 Criar a pasta do projeto e baixar a spec
+
+Crie um diretório **vazio** para o seu projeto e entre nele — é aqui que o agente vai construir tudo:
 
 ```sh
-git clone https://github.com/infobarbosa/data-eng-genai-demo
+mkdir -p top-10-clientes && cd top-10-clientes
 ```
+
+Baixe a especificação (`AGENTS.md`) que vai dirigir o agente:
 
 ```sh
-cd data-eng-genai-demo
+curl -fsSL -o AGENTS.md https://raw.githubusercontent.com/infobarbosa/Data-Pipelines-com-GenAI/main/AGENTS.md
 ```
 
-Este projeto base já contém a spec **`AGENTS.md`** que dirigirá o agente — você vai conhecê-la em detalhe na Parte 3.
+> Alternativa com `wget`:
+> ```sh
+> wget -O AGENTS.md https://raw.githubusercontent.com/infobarbosa/Data-Pipelines-com-GenAI/main/AGENTS.md
+> ```
+
+A partir daqui, todo o trabalho acontece dentro desta pasta. Você vai conhecer a spec em detalhe na Parte 3.
 
 ### 2.5 Criar o ambiente virtual e dependências
 
