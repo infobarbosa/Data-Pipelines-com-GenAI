@@ -49,18 +49,14 @@ Você é um **Engenheiro de Dados Sênior** especialista em Apache Spark e Clean
 ## 6. Arquivos de Exemplo
 Você deve utilizar dois arquivos de exemplo: `clientes` e `pedidos`.
 
-### `clientes.csv`
-```sh
-git clone https://github.com/infobarbosa/dataset-json-clientes ./data/input/dataset-json-clientes
-
+### `clientes.json.gz`
+Os dados de clientes estão em formato JSON comprimido:
 ```
-O conteúdo desse arquivo está estruturado da seguinte forma:
-```
-./data/input/dataset-json-clientes/data/clientes.json
+./data/input/dataset-json-clientes/data/clientes.json.gz
 ```
 
-Sample desse arquivo:
-```
+Sample desse arquivo (um objeto JSON por linha):
+```json
 {"id": 1, "nome": "Isabel Abreu", "data_nasc": "1982-10-26", "cpf": "512.084.739-05", "email": "isabel.abreusigycp@outlook.com", "interesses": ["Filmes"], "carteira_investimentos": {"FIIs": 11533.69, "CDB": 26677.01}}
 {"id": 2, "nome": "Natália Ramos", "data_nasc": "1971-04-26", "cpf": "780.369.125-03", "email": "natalia.ramosrzmyqb@hotmail.com", "interesses": ["Viagens"], "carteira_investimentos": {}}
 {"id": 3, "nome": "Larissa Garcia", "data_nasc": "2006-12-03", "cpf": "608.275.134-53", "email": "larissa.garciaviennn@outlook.com", "interesses": ["Livros"], "carteira_investimentos": {}}
@@ -68,15 +64,10 @@ Sample desse arquivo:
 {"id": 5, "nome": "Caleb Gonçalves", "data_nasc": "1989-06-05", "cpf": "703.465.219-80", "email": "caleb.goncalveslkcgfn@gmail.com", "interesses": ["Astronomia", "Música"], "carteira_investimentos": {"CDB": 13423.81, "Criptomoedas": 45986.93}}
 ```
 
-### `pedidos.csv`
-```sh
-git clone https://github.com/infobarbosa/datasets-csv-pedidos ./data/input/datasets-csv-pedidos
-
+### `pedidos-2026-01.csv.gz`
+Os dados de pedidos estão em formato CSV comprimido, separador `;`, com header:
 ```
-
-O conteúdo dos arquivos está estruturado da seguinte forma:
-```
-./data/input/datasets-csv-pedidos/data/pedidos/pedidos-2026-01.csv
+./data/input/datasets-csv-pedidos/data/pedidos/pedidos-2026-01.csv.gz
 ```
 
 Sample desse arquivo:
