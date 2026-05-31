@@ -1,4 +1,3 @@
-![Data Pipelines com GenAI](./img/geracao-automatica-01.png)
 
 # Data Pipelines com GenAI
 
@@ -9,6 +8,7 @@
 - Github: [infobarbosa](https://github.com/infobarbosa)
 
 ---
+![Data Pipelines com GenAI](./img/geracao-automatica-01.png)
 
 ## Objetivo do hands-on
 
@@ -30,7 +30,7 @@ A ideia central: você **não vai prompar o agente passo a passo**. Você vai en
 - Acesso a um terminal Linux/macOS (ou **AWS Cloud9** — ver nota no setup)
 - Noções de PySpark e linha de comando
 
-> **Trilha do laboratório:** Conceitos (Parte 1) → Setup (Parte 2) → Lab Spec-Driven (Parte 3) → Validação (Parte 4). O **Apêndice** (Parte 5) é leitura opcional.
+> **Trilha do laboratório:** Conceitos (Parte 1) → Setup (Parte 2) → Lab Spec-Driven (Parte 3) → Validação (Parte 4). Os **Apêndices** (Parte 5) são leitura opcional de aprofundamento.
 
 ---
 
