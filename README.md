@@ -30,7 +30,7 @@ A ideia central: você **não vai prompar o agente passo a passo**. Você vai en
 - Acesso a um terminal Linux/macOS (ou **AWS Cloud9** — ver nota no setup)
 - Noções de PySpark e linha de comando
 
-> **Trilha do laboratório:** Conceitos (Parte 1) → Setup (Parte 2) → Lab Spec-Driven (Parte 3) → Validação (Parte 4). Os **Apêndices** (Parte 5) são leitura opcional de aprofundamento.
+> **Trilha do laboratório:** Conceitos (Parte 1) → Setup (Parte 2) → Lab Spec-Driven (Parte 3) → Validação (Parte 4). A **Parte 5** é uma trilha avançada opcional (refatorar a spec em cadeia); o **Apêndice** é leitura complementar.
 
 ---
 
@@ -334,9 +334,141 @@ Os testes verificam **correção da lógica**, não **correção do produto**. A
 
 > O agente acelera; **você responde** pela qualidade.
 
+> **Funcionou? Ótimo — mas olhe de novo para o `AGENTS.md`.** Num único arquivo convivem a intenção de negócio, a regra do "top 10", o schema dos dados e a arquitetura de software. São **quatro vozes diferentes** comprimidas numa só. No mundo real, cada uma nasce de um ator distinto. Pronto para o próximo nível? Siga para a Parte 5.
+
 ---
 
-## Parte 5 — Apêndice: outras ferramentas de agente
+## Parte 5 — Trilha avançada (opcional): refatorando a spec
+
+> Esta parte é para quem já completou o lab e quer ver como o SDD funciona no "mundo perfeito". Você vai **refatorar a especificação como se refatora código**: quebrando o `AGENTS.md` monolítico em uma cadeia de specs com responsabilidade única — sem nunca quebrar o pipeline.
+
+### 5.1 Por que refatorar uma spec que já funciona?
+
+O `AGENTS.md` atual é a "god class" das especificações: faz tudo, mistura tudo. Na vida real, a jornada de *"a área de negócios quer saber os top 10 clientes"* até um pipeline rodando passa por vários atores, cada um produzindo seu próprio artefato:
+
+| Ator | Artefato (spec) | Responde a... |
+| --- | --- | --- |
+| **Negócio** | `specs/01-brief.md` | *Por quê?* Para qual decisão isso serve? |
+| **Analista de negócios** | `specs/02-requisitos.md` | *O quê?* Definição precisa + critérios de aceite |
+| **Analista de dados** | `specs/03-contrato-dados.md` | *Com quais dados?* Schema, grão, métrica |
+| **Engenheiro de dados** | `AGENTS.md` (enxuto) | *Como construir bem?* Arquitetura, testes, build |
+
+A regra de ouro do refactoring vale aqui: **cada movimento preserva o comportamento** (o pipeline continua buildando e passando nos testes), mas melhora a estrutura (separa as preocupações em arquivos rastreáveis).
+
+### 5.2 Movimento 1 — Extrair a intenção de negócio
+
+Crie `specs/01-brief.md`. Tire o *porquê* da cabeça do `AGENTS.md` e dê a ele um dono:
+
+```markdown
+# Brief — Top 10 Clientes
+**Dono:** Área de Negócios
+
+## Contexto
+Nosso e-commerce suspeita que a receita está concentrada em poucos clientes.
+
+## Pergunta de negócio
+Quais são os 10 clientes que mais compram conosco?
+
+## Decisão que isso habilita
+Priorizar relacionamento e retenção dos clientes de maior valor.
+
+## Fora de escopo
+Segmentação, previsão de churn, análise de cesta. (Por enquanto.)
+```
+
+### 5.3 Movimento 2 — Extrair requisitos e critérios de aceite
+
+Crie `specs/02-requisitos.md`. Aqui o "top 10" deixa de ser vago e ganha **critérios de aceite testáveis**:
+
+```markdown
+# Requisitos — Top 10 Clientes
+**Dono:** Analista de Negócios — deriva de [01-brief.md]
+
+## Definição
+"Top 10" = os 10 clientes com maior **valor total de compras** no período disponível.
+valor_total = Σ (valor_unitário × quantidade) de todos os pedidos do cliente.
+
+## Saída esperada
+Ranking com: id_cliente, nome_cliente, valor_total — ordenado desc, 10 linhas.
+
+## Critérios de aceite (viram testes!)
+- CA1: cliente sem pedidos NÃO aparece no ranking.
+- CA2: empate em valor_total → ordenação determinística (desempate por id_cliente).
+- CA3: exatamente 10 linhas quando há ≥ 10 clientes com pedidos.
+- CA4: valor_total confere com Σ(valor_unitário × quantidade).
+```
+
+> **Gancho com a Parte 4:** esses CAs são *exatamente* as asserções do `pytest`. É aqui que a intenção de negócio se conecta ao teste automatizado — o ciclo intenção → spec → teste → código se fecha.
+
+### 5.4 Movimento 3 — Extrair o contrato de dados
+
+Crie `specs/03-contrato-dados.md`. O `AGENTS.md` para de embutir layout de dataset:
+
+```markdown
+# Contrato de Dados — Top 10 Clientes
+**Dono:** Analista de Dados — deriva de [02-requisitos.md]
+
+## Fontes
+- clientes: JSON.gz — grão: 1 linha por cliente
+- pedidos:  CSV.gz (sep ";") — grão: 1 linha por item de pedido
+
+## Schema relevante
+- clientes: id (long), nome (string)
+- pedidos:  valor_unitario (float), quantidade (long), id_cliente (long)
+
+## Junção e métrica
+- join: pedidos.id_cliente = clientes.id
+- valor_total_cliente = SUM(valor_unitario * quantidade) GROUP BY id_cliente
+
+## Qualidade
+- pedido com id_cliente sem correspondência em clientes → descartado (atende CA1)
+```
+
+### 5.5 Movimento 4 — O que sobra é engenharia pura
+
+Edite o `AGENTS.md`: remova intenção, regra de negócio e schema (agora moram nos specs) e **referencie** a cadeia. O que permanece é a *constituição de engenharia* — uma voz só:
+
+```markdown
+# AGENTS.md — Constituição de Engenharia
+Implementa o pipeline definido em specs/01-brief.md, specs/02-requisitos.md
+e specs/03-contrato-dados.md.
+
+## Persona
+Engenheiro de Dados Sênior — Spark + Clean Architecture.
+
+## Princípios (inalterados)
+POO, Clean Architecture, Injeção de Dependência, Config-Driven.
+
+## Estrutura, testes e empacotamento
+(como antes — arquitetura, src/, tests/, Makefile, pyproject.toml)
+```
+
+Repare: o `AGENTS.md` ficou **menor e mais coeso**. Cada detalhe de negócio/dado agora tem um lugar rastreável.
+
+### 5.6 Movimento 5 — O payoff: a cascata
+
+Aqui você sente *por que* tudo isso valeu a pena. Com a cadeia operável, dê ao agente o contexto completo:
+
+```text
+/add AGENTS.md
+/add specs/02-requisitos.md
+/add specs/03-contrato-dados.md
+```
+
+Agora **mude um requisito lá no topo** — por exemplo, troque "top 10" por "top 20", ou "maior valor total" por "maior número de pedidos". Edite apenas `specs/02-requisitos.md` (e o `03` se a métrica mudar) e peça:
+
+```text
+Os requisitos em specs/02-requisitos.md mudaram. Reconcilie a implementação e os
+testes (asserções dos critérios de aceite) com a cadeia de specs atualizada.
+```
+
+Observe a **cascata**: requisito → contrato → código → testes, tudo reconciliado a partir de *uma* edição rastreável no topo — em vez de caçar regras espalhadas num arquivo monolítico. **Isso** é Spec-Driven Development no mundo perfeito.
+
+> **Reflexão final:** você refatorou não o código, mas o *conhecimento* sobre o problema. A spec virou uma arquitetura limpa — com camadas, donos e rastreabilidade — exatamente como o software que ela gera.
+
+---
+
+## Apêndice — outras ferramentas de agente
 
 O fluxo deste lab usa **Aider + Ollama** (local, gratuito). Os mesmos princípios de SDD se aplicam a outras ferramentas — vale conhecer:
 
