@@ -477,7 +477,7 @@ Observe a **cascata**: requisito → contrato → código → testes, tudo recon
 
 ---
 
-## Apêndice — outras ferramentas de agente
+## Apêndice A — outras ferramentas de agente
 
 O fluxo deste lab usa **Aider + Ollama** (local, gratuito). Os mesmos princípios de SDD se aplicam a outras ferramentas — vale conhecer:
 
@@ -487,9 +487,28 @@ O fluxo deste lab usa **Aider + Ollama** (local, gratuito). Os mesmos princípio
 4. **Codex**
 5. **Devin**
 6. **Windsurf**
-7. **Gemini CLI**
+7. **Antigravity CLI (Anteriormente Gemini CLI)**
+8. **OpenCode**
 
 A diferença está na interface; a disciplina — **spec como fonte da verdade, plano antes de implementar, revisão humana depois** — permanece.
+
+## Apêndice B - OpenCode
+Acesse [OpenCode](https://opencode.ai/) e siga as instruções de instalação.<br>
+
+1. Instale o OpenCode
+```sh
+curl -fsSL https://opencode.ai/install | bash
+
+```
+
+2. Inicialize o CLI
+```sh
+opencode --model ollama/gemma4:31b-cloud
+
+```
+Atenção! Caso receba o erro `opencode: command not found`, inicie um novo terminal.
+
+3. Execute `/add AGENTS.md`
 
 ---
 
