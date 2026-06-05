@@ -146,7 +146,7 @@ touch ./requirements.txt
 Conteúdo do `requirements.txt`:
 
 ```text
-pyspark==4.1.1
+pyspark==4.1.2
 pyyaml==6.0.3
 pytest==9.0.3
 ruff==0.12.9
