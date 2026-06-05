@@ -125,39 +125,45 @@ A partir daqui, todo o trabalho acontece dentro desta pasta. Você vai conhecer 
 
 ### 2.5 Criar o ambiente virtual e dependências
 
+#### `uv`
 ```sh
-python3 -m venv .venv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+```
+
+```sh
+uv venv
+
 ```
 
 ```sh
 source .venv/bin/activate
+
 ```
 
 ```sh
 python -m pip install --upgrade pip
+
 ```
 
 Crie o `requirements.txt`:
 
 ```sh
-touch ./requirements.txt
-```
-
-Conteúdo do `requirements.txt`:
-
-```text
+echo "# requirements.txt
 pyspark==4.1.2
 pyyaml==6.0.3
 pytest==9.0.3
 ruff==0.12.9
 black==25.1.0
-build==1.3.0
+build==1.3.0" > requirements.txt
+
 ```
 
 Instale:
 
 ```sh
-pip install -r ./requirements.txt
+uv pip install -r ./requirements.txt
+
 ```
 
 ### 2.6 Instalar o Aider
