@@ -498,7 +498,7 @@ Você é um **Engenheiro de Dados Sênior** especialista em Apache Spark e Clean
 4. Pipeline executando ponta a ponta via `spark-submit ./src/main.py` e gerando o relatório final em `./data/output/top_10_clientes`.
 ```
 
-*(Nota: este checkpoint está disponível em `specs/checkpoints/AGENTS-v3-producao.md` e na raiz `AGENTS.md`).*
+*(Nota: este checkpoint está disponível no repositório em `specs/checkpoints/AGENTS-v3-producao.md`).*
 
 ### 6.3 Implementando a Suíte de Qualidade com o OpenCode
 
