@@ -14,7 +14,7 @@
 Ao final deste laboratório você terá construído, **sem escrever código manualmente**, um pipeline PySpark que calcula os **Top 10 Clientes** de um e-commerce por volume total de compras — seguindo os princípios de **Clean Architecture**, **Clean Code** e **Spec-Driven Development (SDD)**.
 
 A jornada deste laboratório é **incremental**:
-1. Começamos com o tradicional **"Prompt Ingênuo"** para expor as armadilhas da geração cega de código: scripts monolíticos, caminhos hardcoded e, principalmente, **regras de negócio ambíguas e não-determinísticas**.
+1. Começamos com um **prompt ad-hoc inicial** como linha de base para observar as limitações de gerar código sem restrições: scripts monolíticos, caminhos hardcoded e, principalmente, **regras de negócio ambíguas e não-determinísticas**.
 2. Em seguida, praticamos o **Shift-Left**: formalizamos as regras de negócio e contratos de dados antes de codificar (`AGENTS.md` v1).
 3. Elevamos a régua da engenharia de software adicionando **Clean Architecture e POO** (`AGENTS.md` v2).
 4. Fechamos o ciclo de confiabilidade transformando regras de negócio em **testes automatizados com PyTest** e empacotamento com **Makefile** (`AGENTS.md` v3).
@@ -38,7 +38,7 @@ A spec (`AGENTS.md`) é a **fonte da verdade**; o código é uma consequência.
 - Conhecimentos básicos de PySpark, terminal e Git.
 
 > **Trilha do laboratório:**  
-> Conceitos (Parte 1) → Setup (Parte 2) → O Choque do Prompt Ingênuo (Parte 3) → SDD Fase 1: Regras e Contratos (Parte 4) → SDD Fase 2: Clean Architecture (Parte 5) → SDD Fase 3: Confiabilidade e Testes (Parte 6) → Trilha Avançada de Specs Modulares (Parte 7) → Apêndices.
+> Conceitos (Parte 1) → Setup (Parte 2) → Ponto de Partida: O Teste do Prompt Ad-hoc (Parte 3) → SDD Fase 1: Regras e Contratos (Parte 4) → SDD Fase 2: Clean Architecture (Parte 5) → SDD Fase 3: Confiabilidade e Testes (Parte 6) → Trilha Avançada de Specs Modulares (Parte 7) → Apêndices.
 
 ---
 
@@ -187,9 +187,9 @@ f198e8f7-033d-414d-b032-20975e84edde;LIQUIDIFICADOR;300.0;1;2026-01-05T18:36:28;
 
 ---
 
-## Parte 3 — O Choque de Realidade: O Experimento do Prompt Ingênuo
+## Parte 3 — Ponto de Partida: O Teste do Prompt Ad-hoc
 
-Antes de aprender o método correto (SDD), vamos experimentar o que 95% dos desenvolvedores fazem ao usar IA: **enviar um prompt solto sem especificação**.
+Antes de construirmos a especificação formal (SDD), vamos estabelecer uma linha de base observando o comportamento do modelo ao receber um prompt direto e sem restrições explícitas.
 
 ### 3.1 Inicialize o OpenCode
 
@@ -199,9 +199,9 @@ No terminal, inicialize o OpenCode conectado ao modelo Gemma 4:
 ollama launch opencode --model gemma4:cloud
 ```
 
-### 3.2 O Prompt Ingênuo
+### 3.2 Executando o Prompt Inicial
 
-No prompt do OpenCode, envie exatamente o seguinte comando:
+No prompt do OpenCode, envie o seguinte comando:
 
 ```text
 Elabore um projeto pyspark que gere um relatório dos top 10 clientes com base no valor total dos pedidos.
@@ -213,38 +213,38 @@ Autorize o modelo a gerar os arquivos sugeridos e, quando ele concluir, saia com
 /exit
 ```
 
-### 3.3 A Ilusão do Sucesso
+### 3.3 Avaliação do Código Gerado
 
-Abra o arquivo gerado (normalmente um `main.py` ou `top10.py` solto). Se você rodar com `spark-submit`, ele pode até executar e cuspir um DataFrame no terminal.  
-**Mas olhe criticamente para o que foi gerado.**
+Abra o arquivo gerado (normalmente um `main.py` ou `top10.py` solto). Se você rodar com `spark-submit`, ele pode até executar e exibir um DataFrame no terminal.  
+No entanto, uma análise criteriosa revela premissas e decisões ocultas.
 
-### 3.4 O Debate em Sala: 4 Perguntas Cirúrgicas de Regra de Negócio
+### 3.4 Análise Crítica: 4 Questões Essenciais de Regra de Negócio
 
-Abra o código com a turma e analise as seguintes decisões que a IA tomou **em silêncio**:
+Analise o código gerado à luz de quatro questões fundamentais que a IA precisou decidir de forma arbitrária:
 
 #### 1. "Qual a regra de desempate se duas pessoas tiverem o mesmo valor total?"
 - **O que a IA geralmente fez:**  
   `df.groupBy("id_cliente").agg(sum("total")).orderBy(col("total").desc()).limit(10)`
-- **O perigo real:**  
+- **O risco técnico:**  
   No Apache Spark, um `orderBy` sobre valores idênticos em partições distribuídas é **não-determinístico**! Se dois clientes empatarem no 10º lugar com R$ 5.000 gastos, a cada execução do pipeline um cliente diferente pode entrar no Top 10.  
-  *A diretoria da empresa aceitaria premiar clientes diferentes dependendo do horário da execução da pipeline?*
+  *Um relatório gerencial confiável não pode produzir resultados diferentes a cada execução.*
 
 #### 2. "E os clientes que nunca compraram nada?"
 - **O que a IA geralmente fez:**  
   Fez um `left_join` ou cruzou sem validar compras ativas.
 - **O problema:**  
-  Se a base tiver menos de 10 compradores, clientes com R$ 0 gastos poderiam figurar no relatório de "Maiores Compradores"? Isso não faz sentido de negócio.
+  Se a base tiver menos de 10 compradores, clientes com R$ 0 gastos poderiam figurar no relatório de "Maiores Compradores", o que desvirtua o objetivo analítico.
 
 #### 3. "Quais os nomes e tipos exatos das colunas?"
 - O relatório tem `id_cliente` ou `ID_CLIENTE`? Tem `nome` ou `nome_cliente`?  
-- Em produção, dashboards do Power BI e tabelas Silver/Gold esperam um contrato estrito de schema. Variações quebram consumidores a jusante.
+- Em produção, tabelas e dashboards esperam contratos de schema estritos. Variações imprevistas quebram integrações downstream.
 
-#### 4. "Onde está a arquitetura e os testes?"
-- Os caminhos dos arquivos estão fixados no meio do código (*hardcoded*).
-- O código está em um bloco procedural único (impossível de testar sem subir um cluster Spark).
-- Não há testes unitários nem automação.
+#### 4. "Onde está a arquitetura e a testabilidade?"
+- Os caminhos dos arquivos estão fixados diretamente no corpo do código (*hardcoded*).
+- O código está concentrado em um bloco procedural único (impossível de testar sem instanciar recursos de disco/cluster).
+- Não há testes automatizados nem rotinas de validação de estilo.
 
-> **A grande lição:** A IA não errou — **você não especificou**. Quando você não define as regras de negócio e a arquitetura, a IA assume o controle e inventa as premissas por você.
+> **Conclusão:** Quando regras de negócio e restrições arquiteturais não são explicitadas, o agente preenche as lacunas com premissas próprias e silenciosas. Esse comportamento evidencia a necessidade do Spec-Driven Development.
 
 ---
 
