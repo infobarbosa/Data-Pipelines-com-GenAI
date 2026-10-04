@@ -1,7 +1,7 @@
 
 # Data Pipelines com GenAI
 
-> Construindo um pipeline PySpark **dirigido por especificação** (Spec-Driven Development) com um agente de IA local (Ollama + Aider).
+> Construindo um pipeline PySpark **dirigido por especificação** (Spec-Driven Development) com um agente de IA local (OpenCode + Ollama).
 
 - Author: Prof. Barbosa
 - Contact: infobarbosa@gmail.com
@@ -19,18 +19,17 @@ A ideia central: você **não vai prompar o agente passo a passo**. Você vai en
 ### O que você vai aprender
 
 - O que é **Spec-Driven Development** e por que ele muda a forma de trabalhar com agentes de IA.
-- Como rodar um **agente de IA local** (Aider + Ollama) sem depender de APIs pagas.
+- Como rodar um **agente de IA local** (OpenCode + Ollama) com o modelo **Gemma 4**.
 - Como **operar** o agente contra uma spec: planejar → implementar → revisar → iterar.
 - Como **validar** o que o agente gerou (lint, testes, empacotamento) e por que a **revisão humana** continua indispensável.
 
 ### Pré-requisitos
 
-- Python 3.10+
-- Git
-- Acesso a um terminal Linux/macOS (ou **AWS Cloud9** — ver nota no setup)
-- Noções de PySpark e linha de comando
+- Docker instalado (ou acesso a uma instância AWS EC2 com o container do laboratório)
+- Navegador web (para acesso à IDE `code-server`)
+- Conhecimentos básicos de PySpark, terminal e Git
 
-> **Trilha do laboratório:** Conceitos (Parte 1) → Setup (Parte 2) → Lab Spec-Driven (Parte 3) → Validação (Parte 4). A **Parte 5** é uma trilha avançada opcional (refatorar a spec em cadeia); o **Apêndice** é leitura complementar.
+> **Trilha do laboratório:** Conceitos (Parte 1) → Setup (Parte 2) → Lab Spec-Driven (Parte 3) → Validação (Parte 4). A **Parte 5** é uma trilha avançada opcional (refatorar a spec em cadeia); o **Apêndice** traz o fluxo alternativo com **Aider** e visão geral de outras ferramentas.
 
 ---
 
@@ -78,33 +77,58 @@ No SDD, a maior parte dessas técnicas já vive **dentro do `AGENTS.md`** — po
 
 ## Parte 2 — Setup do ambiente
 
-> **AWS Cloud9:** se estiver usando Cloud9, prepare o ambiente com este [tutorial de Cloud9](https://github.com/infobarbosa/data-engineering-cloud9) antes de continuar.
+Para garantir máxima reprodutibilidade, paridade de ambiente e eliminar atritos na instalação de Java, Python, PySpark e runtime de IA, o ambiente oficial deste laboratório é executado através de um container Docker pré-configurado.
 
-### 2.1 Instalar o Ollama
+### 2.1 Ambiente Padrão: Container Docker `opencode-lab-docker-image`
 
-O Ollama executa modelos de linguagem **localmente**, sem custo de API.
+A imagem oficial do laboratório está hospedada publicamente no GitHub Container Registry (GHCR):
+**`ghcr.io/infobarbosa/opencode-lab-docker-image:latest`**
+
+Este container já vem pronto com:
+- **`code-server`**: IDE Visual Studio Code acessível diretamente no seu navegador (porta 8080).
+- **`ollama`**: Servidor de LLM local já ativo em background (porta 11434).
+- **`opencode`**: CLI oficial do agente de IA instalado globalmente e configurado no `PATH`.
+- **`PySpark` e Java 21 Headless**: Prontos para execução dos jobs Spark.
+
+#### Como iniciar o container
+
+Execute o comando abaixo no terminal da sua máquina host (ou instância EC2):
 
 ```sh
-curl -fsSL https://ollama.com/install.sh | sh
+docker run -d \
+  --name opencode-lab \
+  -p 8080:8080 \
+  -p 11434:11434 \
+  ghcr.io/infobarbosa/opencode-lab-docker-image:latest
 ```
 
-### 2.2 Login no Ollama
+> **Dica para persistência:** Se desejar mapear uma pasta local da sua máquina para o container, adicione a flag de volume:
+> `-v $(pwd)/workspace:/home/barbosa/project`
+
+#### Acessando a IDE
+
+1. Abra o navegador web e acesse: `http://localhost:8080` (ou o IP público da sua instância AWS EC2 na porta `8080`).
+2. O ambiente carregará diretamente no VS Code (`code-server`) em modo sem senha.
+3. Abra o terminal integrado no menu superior: **Terminal -> New Terminal** (ou pelo atalho ``Ctrl + ` `` / ``Cmd + ` ``).
+4. Todo o restante do laboratório será executado dentro deste terminal integrado.
+
+### 2.2 Login no Ollama e Verificação
+
+O modelo adotado como padrão neste laboratório é o **Gemma 4** (`gemma4:cloud`). Para que o Ollama possa acessá-lo via nuvem, faça a autenticação uma única vez no terminal:
 
 ```sh
 ollama login
 ```
 
-### 2.3 Verificar a conexão com o Ollama
-
-O Aider usará a API local do Ollama. Garanta que ela responde:
+Siga as instruções exibidas no terminal para concluir a autenticação. Após autenticar, valide a conectividade da API local:
 
 ```sh
 curl http://localhost:11434/api/tags
 ```
 
-### 2.4 Criar a pasta do projeto e baixar a spec
+### 2.3 Criar a pasta do projeto e baixar a spec
 
-Crie um diretório **vazio** para o seu projeto e entre nele — é aqui que o agente vai construir tudo:
+Dentro do terminal integrado do container (no diretório de trabalho `/home/barbosa/project`), crie um diretório para o projeto e entre nele:
 
 ```sh
 mkdir -p top-10-clientes && cd top-10-clientes
@@ -123,62 +147,19 @@ curl -fsSL -o AGENTS.md https://raw.githubusercontent.com/infobarbosa/Data-Pipel
 
 A partir daqui, todo o trabalho acontece dentro desta pasta. Você vai conhecer a spec em detalhe na Parte 3.
 
-### 2.5 Criar o ambiente virtual e dependências
+### 2.4 Instalar dependências de suporte
 
-#### `uv`
-```sh
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-```
+O PySpark já se encontra instalado no ambiente. Instale as bibliotecas complementares para formatação, validação de código e empacotamento:
 
 ```sh
-uv venv
-
+pip install pyyaml pytest ruff black build
 ```
 
-```sh
-source .venv/bin/activate
+*(Opcional: caso prefira isolamento com ambiente virtual gerenciado por `uv`, você pode executar `uv venv && source .venv/bin/activate && uv pip install pyyaml pytest ruff black build`).*
 
-```
+### 2.5 Baixar os datasets de exemplo
 
-```sh
-python -m pip install --upgrade pip
-
-```
-
-Crie o `requirements.txt`:
-
-```sh
-echo "# requirements.txt
-pyspark==4.1.2
-pyyaml==6.0.3
-pytest==9.0.3
-ruff==0.12.9
-black==25.1.0
-build==1.3.0" > requirements.txt
-
-```
-
-Instale:
-
-```sh
-uv pip install -r ./requirements.txt
-
-```
-
-### 2.6 Instalar o Aider
-
-O **Aider** é o agente de IA de linha de comando que conversa com o Ollama e edita seu repositório (inclusive fazendo commits automáticos).
-
-```sh
-python -m pip install aider-install
-```
-
-```sh
-aider-install
-```
-
-### 2.7 Baixar os datasets
+Crie os diretórios de dados de entrada e saída:
 
 ```sh
 mkdir -p ./data/{input,output}
@@ -244,75 +225,76 @@ Abra e leia o `AGENTS.md` na raiz do projeto. Ele é o **contrato** que o agente
 
 > **Por que isso importa:** repare que a spec **não diz como escrever cada linha de código**. Ela define *princípios* e *resultado esperado*. O agente preenche os detalhes. Esse é o coração do SDD.
 
-### 3.2 Inicialize o agente Aider
+### 3.2 Inicialize o agente OpenCode com Ollama
+
+Inicie o **OpenCode** apontando para o modelo **Gemma 4** através do comando integrado do Ollama:
 
 ```sh
-aider --model ollama/gemma4:31b-cloud
+ollama launch opencode --model gemma4:cloud
 ```
 
-Quando o chat do Aider abrir, adicione a spec ao contexto da conversa:
-
-```text
-/add AGENTS.md
-```
+> **Como funciona:** O comando `ollama launch opencode` estabelece a integração automática entre o OpenCode e o servidor local do Ollama, selecionando o modelo `gemma4:cloud` sem a necessidade de editar arquivos manuais de configuração.
 
 ### 3.3 Peça o plano (planejar antes de implementar)
 
-Antes de deixar o agente escrever qualquer arquivo, peça que ele exponha o **plano de trabalho**. Dentro do chat do Aider:
+No OpenCode, você pode referenciar arquivos e pastas do seu projeto diretamente no prompt utilizando o símbolo `@` (que ativa a busca contextual de arquivos).
+
+Antes de autorizar a escrita de arquivos, solicite que o agente apresente o **plano de trabalho**. No prompt do OpenCode:
 
 ```text
-Verifique o conteúdo de AGENTS.md e me mostre o seu plano de trabalho para implementação.
+Verifique o conteúdo de @AGENTS.md e me mostre o seu plano de trabalho para implementação.
 ```
 
-**Revise o plano criticamente.** Ele cobre todos os módulos da estrutura esperada? Respeita a Clean Architecture? Vai criar os testes? Se algo estiver faltando ou divergente, **corrija pela conversa** antes de autorizar a implementação. Esse momento de revisão é o que separa "usar IA" de "engenheirar com IA".
+**Revise o plano criticamente.** Ele cobre todos os módulos da estrutura esperada? Respeita a Clean Architecture? Vai criar os testes? Se algo estiver faltando ou divergente, **ajuste pela conversa** antes de autorizar a implementação. Esse momento de revisão é o que separa "usar IA" de "engenheirar com IA".
 
 ### 3.4 Deixe o agente implementar
 
-Com o plano aprovado, autorize a implementação. O Aider vai criar os arquivos e, a cada mudança, **fazer commits automáticos** no repositório. Acompanhe os diffs que ele apresenta.
+Com o plano aprovado, autorize o OpenCode a criar os arquivos do projeto (`config/config.yaml`, `src/core/`, `src/utils/`, `src/data_io/`, `src/transforms/`, `src/jobs/`, `src/main.py`, `tests/` e automações).
 
-Quando ele terminar, saia do chat:
+Acompanhe os arquivos sendo criados pelo agente. Quando ele concluir todas as etapas de implementação, saia da interface do OpenCode:
 
 ```text
 /exit
 ```
+*(ou pelo atalho `Ctrl + C`).*
 
 ### 3.5 Rode o pipeline
 
-```sh
-export PYTHONPATH=$(pwd)
-```
+Com o código gerado no workspace, execute o pipeline PySpark no terminal:
 
 ```sh
+export PYTHONPATH=$(pwd)
 spark-submit ./src/main.py
 ```
 
-Confira a saída em `./data/output/top_10_clientes`. Esse é o critério da **Definição de Pronto** da spec.
+Confira a saída gerada em `./data/output/top_10_clientes`. Esse é o critério da **Definição de Pronto** da spec.
 
-> **Quando der erro (e vai dar):** se o `spark-submit` falhar, não decifre o stack trace sozinho — entregue-o ao agente. Volte ao Aider e use um prompt assim:
+> **Quando der erro (e vai dar):** se o `spark-submit` falhar, não decifre o stack trace sozinho — entregue-o ao agente. Reabra o OpenCode:
+>
+> ```sh
+> ollama launch opencode --model gemma4:cloud
+> ```
+>
+> E use um prompt assim:
 >
 > ```text
 > Meu spark-submit falhou com o stack trace abaixo. Analise-o e me dê as 3 causas
-> mais prováveis e como corrigir cada uma, respeitando os princípios do AGENTS.md.
+> mais prováveis e como corrigir cada uma, respeitando os princípios de @AGENTS.md.
 > [COLE O STACK TRACE COMPLETO]
 > ```
 
 ### 3.6 Itere a spec (o ciclo SDD na prática)
 
-A spec **não menciona empacotamento** (gerar um `.whl` distribuível). Em vez de improvisar prompts, vamos **evoluir a spec** e pedir o incremento ao agente.
+A spec inicial não detalhava o processo de empacotamento (gerar um `.whl` distribuível). Em vez de improvisar prompts avulsos, nós **evoluímos a especificação** e solicitamos o incremento:
 
-Volte ao Aider:
+Reabra o OpenCode:
 
 ```sh
-aider --model ollama/gemma4:31b-cloud
+ollama launch opencode --model gemma4:cloud
 ```
 
 ```text
-/add AGENTS.md
-```
-
-```text
-Elabore os artefatos para empacotamento do projeto (pyproject.toml e os targets de
-Makefile para build do .whl em dist/), mantendo os princípios já definidos no AGENTS.md.
+Elabore os artefatos para empacotamento do projeto (pyproject.toml e os targets de Makefile para build do .whl em dist/), mantendo os princípios já definidos no @AGENTS.md.
 ```
 
 > **Reflexão:** note o padrão — quando o requisito muda, a spec evolui e o agente reimplementa de forma consistente. Esse é o loop fundamental do Spec-Driven Development.
@@ -462,18 +444,16 @@ Repare: o `AGENTS.md` ficou **menor e mais coeso**. Cada detalhe de negócio/dad
 
 ### 5.6 Movimento 5 — O payoff: a cascata
 
-Aqui você sente *por que* tudo isso valeu a pena. Com a cadeia operável, dê ao agente o contexto completo:
+Aqui você sente *por que* tudo isso valeu a pena. Com a cadeia operável, referencie os arquivos da cadeia no OpenCode:
 
 ```text
-/add AGENTS.md
-/add specs/02-requisitos.md
-/add specs/03-contrato-dados.md
+Verifique a cadeia de especificações: @AGENTS.md, @specs/02-requisitos.md e @specs/03-contrato-dados.md.
 ```
 
 Agora **mude um requisito lá no topo** — por exemplo, troque "top 10" por "top 20", ou "maior valor total" por "maior número de pedidos". Edite apenas `specs/02-requisitos.md` (e o `03` se a métrica mudar) e peça:
 
 ```text
-Os requisitos em specs/02-requisitos.md mudaram. Reconcilie a implementação e os
+Os requisitos em @specs/02-requisitos.md mudaram. Reconcilie a implementação e os
 testes (asserções dos critérios de aceite) com a cadeia de specs atualizada.
 ```
 
@@ -483,38 +463,66 @@ Observe a **cascata**: requisito → contrato → código → testes, tudo recon
 
 ---
 
-## Apêndice A — outras ferramentas de agente
+## Apêndice A — Executando o Laboratório com Aider (Fluxo Legado)
 
-O fluxo deste lab usa **Aider + Ollama** (local, gratuito). Os mesmos princípios de SDD se aplicam a outras ferramentas — vale conhecer:
+> **Nota:** Nas edições anteriores deste laboratório, o **Aider** foi utilizado como agente de IA de linha de comando padrão. Nesta versão do material, o **OpenCode** passou a ser a ferramenta padrão da aula. Mantemos este fluxo documentado como referência técnica e alternativa de estudo.
 
-1. **VSCode** — autocomplete
-2. **GitHub Copilot**
-3. **Antigravity**
-4. **Codex**
-5. **Devin**
-6. **Windsurf**
-7. **Antigravity CLI (Anteriormente Gemini CLI)**
-8. **OpenCode**
+O **Aider** é um coding agent de terminal que conversa com modelos LLM (incluindo instâncias locais do Ollama) e possui como característica distintiva a realização de commits Git automáticos a cada alteração confirmada.
 
-A diferença está na interface; a disciplina — **spec como fonte da verdade, plano antes de implementar, revisão humana depois** — permanece.
+### 1. Instalação do Aider
 
-## Apêndice B - OpenCode
-Acesse [OpenCode](https://opencode.ai/) e siga as instruções de instalação.<br>
+Caso deseje testar o fluxo com o Aider, instale-o via `pip`:
 
-1. Instale o OpenCode
 ```sh
-curl -fsSL https://opencode.ai/install | bash
-
+python -m pip install aider-install
+aider-install
 ```
 
-2. Inicialize o CLI
+### 2. Inicialização com o Ollama
+
+Com o servidor do Ollama ativo, inicialize o Aider apontando para o modelo desejado (ex: `gemma4:cloud`):
+
 ```sh
-opencode --model ollama/gemma4:31b-cloud
-
+aider --model ollama/gemma4:cloud
 ```
-Atenção! Caso receba o erro `opencode: command not found`, inicie um novo terminal.
 
-3. Execute `/add AGENTS.md`
+### 3. Inclusão da Spec no Contexto
+
+No prompt interativo do Aider, adicione o arquivo de especificação:
+
+```text
+/add AGENTS.md
+```
+
+### 4. Solicitação do Plano e Implementação
+
+Solicite a elaboração do plano:
+
+```text
+Verifique o conteúdo de AGENTS.md e me mostre o seu plano de trabalho para implementação.
+```
+
+Após aprovar o plano, autorize a escrita do código. O Aider gerará os diffs e registrará commits atômicos no repositório Git local. Para encerrar a sessão:
+
+```text
+/exit
+```
+
+---
+
+## Apêndice B — Panorama de ferramentas e ecossistema de Coding Agents
+
+O fluxo deste laboratório utiliza **OpenCode + Ollama** integrado ao container Docker oficial. No entanto, os mesmos princípios de Spec-Driven Development (SDD) se aplicam a todo o ecossistema moderno de ferramentas de IA para desenvolvimento:
+
+1. **OpenCode:** Coding agent open source em terminal, altamente integrado ao Ollama e fluxo Spec-Driven.
+2. **Aider:** Agente de terminal com automação forte de commits Git e edição contextual.
+3. **VS Code / Cursor:** Extensões de assistência de código, chat inline e autocomplete.
+4. **GitHub Copilot / Copilot Workspace:** Assistente de desenvolvimento e geração de tarefas dirigidas por spec.
+5. **Antigravity / Antigravity CLI:** Agente de codificação avançado orientado a tarefas complexas e pair-programming.
+6. **Claude Code:** Agente de linha de comando para raciocínio profundo e orquestração de projetos.
+7. **Windsurf / Devin:** Ambientes agênticos autônomos para engenharia de software de ponta a ponta.
+
+A interface e as mecânicas de interação mudam; a disciplina de engenharia — **especificação como fonte da verdade, plano antes de implementar, validação automatizada e revisão humana crítica** — permanece a mesma.
 
 ---
 

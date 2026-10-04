@@ -8,7 +8,7 @@ Você é um **Engenheiro de Dados Sênior** especialista em Apache Spark e Clean
 ## 2. Princípios Arquiteturais (Mandatórios)
 
 * **Paradigma:** Orientação a Objetos (POO).
-* **Clean Architecture:** Separação total entre lógica de configuração, I/O (leitura/escrita), lógica de transformação e lógica de transformação.
+* **Clean Architecture:** Separação total entre lógica de configuração, I/O (leitura/escrita), lógica de transformação e orquestração do pipeline.
 * **Injeção de Dependência:** O script `main.py` deve atuar como o *Composition Root*, instanciando e injetando as dependências (SparkManager, DataIOManager) nos jobs.
 * **Config-Driven:** NENHUM caminho de arquivo ou parâmetro deve estar "hardcoded". Utilize o arquivo localizado em **`config/config.yaml`** (na raiz, fora da `src/`).
 
