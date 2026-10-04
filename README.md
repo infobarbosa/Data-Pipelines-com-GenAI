@@ -78,6 +78,13 @@ Aplicamos o princípio do **Shift-Left**: esforço de engenharia concentrado na 
 
 Para garantir paridade total, reprodutibilidade e eliminar atritos na instalação de Java 21, PySpark, Python e runtimes de IA em diferentes sistemas operacionais, o ambiente oficial deste laboratório é executado através de container Docker.
 
+> 💡 **Provisionamento Automatizado na AWS (Recomendado para Aulas):**  
+> Se você estiver utilizando o **AWS Academy** ou uma conta AWS própria, execute o script de provisionamento "one-liner" no **AWS CloudShell** via repositório [opencode-lab-aws](https://github.com/infobarbosa/opencode-lab-aws):
+> ```sh
+> curl -sS https://raw.githubusercontent.com/infobarbosa/opencode-lab-aws/main/launch-lab.sh | bash
+> ```
+> O script cria a instância EC2 `m5.large`, configura o Security Group e inicia o container automaticamente.
+
 ### 2.1 Ambiente Padrão: Container Docker `opencode-lab-docker-image`
 
 A imagem oficial está hospedada publicamente no GitHub Container Registry (GHCR):  
