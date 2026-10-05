@@ -1,6 +1,6 @@
 # Data Pipelines com GenAI
 
-> Construindo um pipeline PySpark **dirigido por especificação** (Spec-Driven Development) com um agente de IA local (OpenCode + Ollama).
+> Construindo um pipeline PySpark **dirigido por especificação** (Spec-Driven Development) com um agente de IA local (OpenCode).
 
 - Author: Prof. Barbosa
 - Contact: infobarbosa@gmail.com
@@ -13,11 +13,11 @@
 
 Ao final deste laboratório você terá construído, **sem escrever código manualmente**, um pipeline PySpark que calcula os **Top 10 Clientes** de um e-commerce por volume total de compras — seguindo os princípios de **Clean Architecture**, **Clean Code** e **Spec-Driven Development (SDD)**.
 
-A jornada deste laboratório é **incremental**:
-1. Começamos com um **prompt ad-hoc inicial** como linha de base para observar as limitações de gerar código sem restrições: scripts monolíticos, caminhos hardcoded e, principalmente, **regras de negócio ambíguas e não-determinísticas**.
-2. Em seguida, praticamos o **Shift-Left**: formalizamos as regras de negócio e contratos de dados antes de codificar (`AGENTS.md` v1).
-3. Elevamos a régua da engenharia de software adicionando **Clean Architecture e POO** (`AGENTS.md` v2).
-4. Fechamos o ciclo de confiabilidade transformando regras de negócio em **testes automatizados com PyTest** e empacotamento com **Makefile** (`AGENTS.md` v3).
+A jornada deste laboratório é **incremental e sem atrito**:
+1. **Primeiro contato atômico ("Hello World"):** Um prompt simples digitado à mão (*"Crie um script que leia um arquivo csv e converta em parquet"*) para ambientar o aluno com o agente em 2 minutos, sem necessidade de logins ou downloads de modelos pesados.
+2. **O Projeto Real e a Spec via `/init`:** Início do projeto `top-10-clientes` e criação da especificação inicial usando o comando nativo `/init` do OpenCode.
+3. **Ponto de Partida (Prompt Ad-hoc):** Observação de como o agente se comporta sem regras explícitas e análise crítica das **decisões de negócio silenciosas e não-determinísticas**.
+4. **Shift-Left no Editor Visual:** Evolução progressiva do `AGENTS.md` diretamente no editor visual do VS Code (evitando problemas de copiar/colar no terminal do navegador), cobrindo regras de negócio, arquitetura desacoplada e testes unitários.
 
 A spec (`AGENTS.md`) é a **fonte da verdade**; o código é uma consequência.
 
@@ -25,11 +25,12 @@ A spec (`AGENTS.md`) é a **fonte da verdade**; o código é uma consequência.
 
 ### O que você vai aprender
 
+- **Primeiros passos com Coding Agents:** Como interagir com o **OpenCode** de forma imediata via terminal.
 - **O perigo do Prompt Ad-hoc:** Por que a IA toma decisões de negócio perigosas e silenciosas quando não é balizada por uma especificação.
 - **Spec-Driven Development (SDD) & Shift-Left:** Como escrever regras de negócio determinísticas e contratos de dados *antes* do código.
-- **Evolução Arquitetural Incremental:** Como guiar o agente na transição de um script simples para um projeto robusto em Clean Architecture e POO.
-- **Agente de IA Local:** Como operar o **OpenCode** integrado ao **Ollama** utilizando o modelo **Gemma 4** (`gemma4:cloud`) sem custo de API.
-- **Critérios de Aceite como Testes:** Como validar formalmente a entrega através de asserções automatizadas no PySpark.
+- **Evolução Arquitetural no Editor Visual:** Como alimentar e refinar o `AGENTS.md` no VS Code guiando a refatoração para Clean Architecture e POO.
+- **Critérios de Aceite como Testes:** Como transformar requisitos de negócio em asserções automatizadas no PySpark (`pytest`).
+- **Ecossistema Flexível de Modelos:** Como começar com modelos rápidos integrados e, opcionalmente, conectar modelos locais ou cloud via **Ollama** (`gemma4:cloud`).
 
 ### Pré-requisitos
 
@@ -38,7 +39,7 @@ A spec (`AGENTS.md`) é a **fonte da verdade**; o código é uma consequência.
 - Conhecimentos básicos de PySpark, terminal e Git.
 
 > **Trilha do laboratório:**  
-> Conceitos (Parte 1) → Setup (Parte 2) → Ponto de Partida: O Teste do Prompt Ad-hoc (Parte 3) → SDD Fase 1: Regras e Contratos (Parte 4) → SDD Fase 2: Clean Architecture (Parte 5) → SDD Fase 3: Confiabilidade e Testes (Parte 6) → Trilha Avançada de Specs Modulares (Parte 7) → Apêndices.
+> Conceitos (Parte 1) → Setup e "Hello World" (Parte 2) → Projeto Real e Spec com `/init` (Parte 3) → Ponto de Partida: Prompt Ad-hoc (Parte 4) → SDD Fase 1: Regras e Contratos (Parte 5) → SDD Fase 2: Clean Architecture (Parte 6) → SDD Fase 3: Confiabilidade e Testes (Parte 7) → Trilha Avançada de Specs Modulares (Parte 8) → Apêndices.
 
 ---
 
@@ -74,7 +75,7 @@ Aplicamos o princípio do **Shift-Left**: esforço de engenharia concentrado na 
 
 ---
 
-## Parte 2 — Setup do ambiente
+## Parte 2 — Setup do ambiente e primeiro contato ("Hello World")
 
 Para garantir paridade total, reprodutibilidade e eliminar atritos na instalação de Java 21, PySpark, Python e runtimes de IA em diferentes sistemas operacionais, o ambiente oficial deste laboratório é executado através de container Docker.
 
@@ -87,18 +88,18 @@ Para garantir paridade total, reprodutibilidade e eliminar atritos na instalaç�
 
 ### 2.1 Ambiente Padrão: Container Docker `opencode-lab-docker-image`
 
-A imagem oficial está hospedada publicamente no GitHub Container Registry (GHCR):  
+Caso esteja executando localmente na sua máquina, utilize a imagem pública hospedada no GitHub Container Registry (GHCR):  
 **`ghcr.io/infobarbosa/opencode-lab-docker-image:latest`**
 
 Componentes pré-instalados:
 - **`code-server`**: IDE Visual Studio Code acessível diretamente no seu navegador (porta 8080).
+- **`opencode`**: CLI oficial do agente de codificação configurado no `PATH`.
 - **`ollama`**: Servidor de LLM local já ativo em background (porta 11434).
-- **`opencode`**: CLI oficial do agente de IA configurado no `PATH`.
 - **`PySpark` e Java 21 Headless**: Prontos para execução dos jobs Spark.
 
 #### Como iniciar o container
 
-Execute o comando abaixo no terminal da sua máquina host (ou instância EC2):
+Execute o comando abaixo no terminal da sua máquina host:
 
 ```sh
 docker run -d \
@@ -116,39 +117,50 @@ docker run -d \
 1. Abra o navegador web e acesse: `http://localhost:8080` (ou o IP público da sua instância AWS EC2 na porta `8080`).
 2. O ambiente carregará diretamente no VS Code (`code-server`) em modo sem senha.
 3. Abra o terminal integrado no menu: **Terminal -> New Terminal** (ou atalho ``Ctrl + ` `` / ``Cmd + ` ``).
-4. Todo o restante do laboratório será executado dentro deste terminal integrado.
 
-### 2.2 Login no Ollama e Verificação
+### 2.2 Instalar dependências de suporte
 
-O modelo adotado como padrão neste laboratório é o **Gemma 4** (`gemma4:cloud`). Para que o Ollama possa acessá-lo via nuvem, faça a autenticação uma única vez no terminal:
-
-```sh
-ollama login
-```
-
-Siga as instruções exibidas para concluir a autenticação. Após autenticar, valide a conectividade da API local:
-
-```sh
-curl http://localhost:11434/api/tags
-```
-
-### 2.3 Criar a pasta do projeto
-
-Dentro do terminal integrado do container (no diretório de trabalho `/home/barbosa/project`), crie um diretório para o projeto e entre nele:
-
-```sh
-mkdir -p top-10-clientes && cd top-10-clientes
-```
-
-### 2.4 Instalar dependências de suporte
-
-O PySpark já se encontra instalado no ambiente. Instale as bibliotecas complementares para formatação, validação e testes:
+No terminal integrado, instale as bibliotecas complementares para formatação, validação e testes:
 
 ```sh
 pip install pyyaml pytest ruff black build
 ```
 
-### 2.5 Baixar os datasets de exemplo
+### 2.3 O Primeiro Contato com o OpenCode (O "Hello World" de Dados)
+
+Para que você experimente o fluxo do agente de forma imediata — sem necessidade de login prévio ou download de modelos pesados — o OpenCode já vem pronto para uso com seus modelos de entrada integrados.
+
+1. No terminal integrado (em `/home/barbosa/project`), inicie o agente:
+   ```sh
+   opencode
+   ```
+2. Digite à mão no prompt do OpenCode uma tarefa atômica de engenharia de dados:
+   ```text
+   Crie um script que leia um arquivo csv e converta em parquet.
+   ```
+3. O OpenCode analisará o pedido, proporá o código (ex: `convert_csv_to_parquet.py`) e solicitará a sua confirmação para criar o arquivo.
+4. Confirme a criação e, quando ele terminar, encerre a sessão do agente digitando:
+   ```text
+   /exit
+   ```
+5. Veja o arquivo criado no painel do VS Code.  
+Pronto! Em menos de 2 minutos você validou o funcionamento do seu agente de IA.
+
+---
+
+## Parte 3 — O projeto real e a inicialização da spec com `/init`
+
+Agora que você já teve o primeiro contato com a ferramenta, vamos iniciar o desafio real: **o pipeline analítico dos Top 10 Clientes**.
+
+### 3.1 Criar a pasta do projeto
+
+Dentro do terminal integrado, crie o diretório do projeto e acesse-o:
+
+```sh
+mkdir -p top-10-clientes && cd top-10-clientes
+```
+
+### 3.2 Baixar os datasets de exemplo
 
 Crie os diretórios de dados de entrada e saída:
 
@@ -192,40 +204,54 @@ f198e8f7-033d-414d-b032-20975e84edde;LIQUIDIFICADOR;300.0;1;2026-01-05T18:36:28;
 97969db5-9304-4b80-b19e-3a9d60ce6520;CELULAR;1000.0;3;2026-01-01T11:58:48;DF;934
 ```
 
+### 3.3 Inicializar a especificação com `/init`
+
+Em ambientes baseados em navegador (`code-server`), copiar e colar textos grandes no terminal frequentemente falha por restrições de segurança do clipboard do browser. Por isso, a melhor prática com o OpenCode é utilizar o comando nativo `/init`:
+
+1. No terminal, dentro da pasta `top-10-clientes`, execute:
+   ```sh
+   opencode
+   ```
+2. No prompt do OpenCode, digite o comando:
+   ```text
+   /init
+   ```
+3. O OpenCode varrerá o workspace e gerará automaticamente o arquivo **`AGENTS.md`** na raiz do projeto.
+4. Encerre o OpenCode:
+   ```text
+   /exit
+   ```
+
+> 💡 **Ergonomia no VS Code:** A partir de agora, o arquivo `AGENTS.md` existe fisicamente no disco. Em vez de colar comandos gigantes no terminal, você simplesmente **abrirá o `AGENTS.md` no editor visual do VS Code** (clicando no arquivo na árvore lateral esquerda) para editá-lo confortavelmente.
+
 ---
 
-## Parte 3 — Ponto de Partida: O Teste do Prompt Ad-hoc
+## Parte 4 — Ponto de partida: O teste do prompt ad-hoc
 
-Antes de construirmos a especificação formal (SDD), vamos estabelecer uma linha de base observando o comportamento do modelo ao receber um prompt direto e sem restrições explícitas.
+Antes de customizarmos a especificação, vamos observar como o agente responde a um pedido direto de negócio sem restrições explícitas.
 
-### 3.1 Inicialize o OpenCode
+### 4.1 Executando o Prompt Ad-hoc Inicial
 
-No terminal, inicialize o OpenCode conectado ao modelo Gemma 4:
+Inicie o OpenCode dentro de `top-10-clientes`:
 
 ```sh
-ollama launch opencode --model gemma4:cloud
+opencode
 ```
 
-### 3.2 Executando o Prompt Inicial
-
-No prompt do OpenCode, envie o seguinte comando:
+Envie o prompt direto:
 
 ```text
 Elabore um projeto pyspark que gere um relatório dos top 10 clientes com base no valor total dos pedidos.
 ```
 
-Autorize o modelo a gerar os arquivos sugeridos e, quando ele concluir, saia com:
+Autorize a criação dos arquivos sugeridos e encerre a sessão com `/exit`.
 
-```text
-/exit
-```
+### 4.2 Avaliação do Código Gerado
 
-### 3.3 Avaliação do Código Gerado
-
-Abra o arquivo gerado (normalmente um `main.py` ou `top10.py` solto). Se você rodar com `spark-submit`, ele pode até executar e exibir um DataFrame no terminal.  
+Abra o arquivo gerado (normalmente um `main.py` solto). Se você rodar com `spark-submit`, ele pode até executar e exibir um DataFrame no terminal.  
 No entanto, uma análise criteriosa revela premissas e decisões ocultas.
 
-### 3.4 Análise Crítica: 4 Questões Essenciais de Regra de Negócio
+### 4.3 Análise Crítica: 4 Questões Essenciais de Regra de Negócio
 
 Analise o código gerado à luz de quatro questões fundamentais que a IA precisou decidir de forma arbitrária:
 
@@ -255,22 +281,13 @@ Analise o código gerado à luz de quatro questões fundamentais que a IA precis
 
 ---
 
-## Parte 4 — SDD Fase 1: Formalizando Regras de Negócio e Contratos de Dados (`AGENTS.md` v1)
+## Parte 5 — SDD Fase 1: Formalizando regras de negócio e contratos (`AGENTS.md` v1)
 
-Agora vamos aplicar o **Spec-Driven Development**. Em vez de tentar "consertar" o código via chat com 10 prompts soltos, nós vamos **criar a primeira versão da especificação**.
+Agora aplicamos o **Shift-Left**: vamos blindar as regras de negócio e os contratos de dados antes de deixar a IA gerar código.
 
-### 4.1 O que colocar na v1 da spec?
-- **Persona:** Engenheiro de dados sênior.
-- **Regras de Negócio Inequívocas:**
-  - Fórmula explícita do cálculo: `SUM(VALOR_UNITARIO * QUANTIDADE)`.
-  - **Critério Determinístico de Desempate:** Ordenar por `valor_total_gasto` DESC e, em caso de empate, por `id_cliente` ASC.
-  - Apenas clientes com compras ativas (Inner Join).
-  - Schema de saída padronizado: `id_cliente` (Long), `nome_cliente` (String), `valor_total_gasto` (Double).
-- **Config-Driven:** Caminhos lidos obrigatoriamente de `config/config.yaml`.
+### 5.1 Editando o `AGENTS.md` no Editor Visual
 
-### 4.2 Crie o `AGENTS.md` (v1)
-
-Crie o arquivo `AGENTS.md` na raiz do seu projeto `top-10-clientes`:
+Abra o arquivo `AGENTS.md` na árvore do VS Code à esquerda e substitua seu conteúdo pelo texto abaixo:
 
 ```markdown
 # AGENTS.md — Versão 1: Regras de Negócio e Contratos de Dados
@@ -309,45 +326,34 @@ Nenhum caminho de arquivo ou parâmetro deve estar fixado ("hardcoded") no códi
 O pipeline deve ler a configuração de `config/config.yaml`, processar os dados brutos e salvar o ranking determinístico em `./data/output/top_10_clientes`.
 ```
 
-*(Nota: este checkpoint está disponível no repositório em `specs/checkpoints/AGENTS-v1-regras-e-contratos.md`).*
+*(Nota: este modelo também está salvo para referência em `specs/checkpoints/AGENTS-v1-regras-e-contratos.md`).*
 
-### 4.3 Execute o OpenCode com a Spec v1
+### 5.2 Dispare a Reconciliação no OpenCode
 
-Inicie o OpenCode:
+Salve o arquivo (`Ctrl + S` / `Cmd + S`). No terminal, inicie o OpenCode:
 
 ```sh
-ollama launch opencode --model gemma4:cloud
+opencode
 ```
 
-Envie o prompt contextual referenciando o arquivo `@AGENTS.md`:
+Envie o prompt contextual:
 
 ```text
-Verifique o arquivo @AGENTS.md. Exponha seu plano de implementação e, após aprovação, reestruture o projeto para atender rigorosamente às regras de negócio e ao arquivo de configuração definidos.
+Verifique o arquivo @AGENTS.md. Reestruture o projeto para atender rigorosamente às regras de negócio, ao determinismo de desempate e ao arquivo de configuração definidos.
 ```
 
-Saia do OpenCode (`/exit`) e inspecione o código.  
+Saia do OpenCode (`/exit`).  
 **Resultado da Fase 1:** O código agora respeita as regras de negócio, o desempate é determinístico e não há caminhos hardcoded. Mas como está a arquitetura de software?
 
 ---
 
-## Parte 5 — SDD Fase 2: Elevando a Régua: Clean Architecture & POO (`AGENTS.md` v2)
+## Parte 6 — SDD Fase 2: Elevando a régua arquitetural: Clean Architecture & POO (`AGENTS.md` v2)
 
-Um script único, mesmo que acerte as regras de negócio, é um pesadelo de manutenção. Como testar regras de negócio sem ler arquivos do disco? Como trocar o formato de entrada sem reescrever a lógica analítica?
+Um script procedural único é difícil de testar e manter. Vamos evoluir a spec para exigir separação total de responsabilidades.
 
-### 5.1 Princípios de Clean Architecture Aplicados
-Agora evoluímos a spec para exigir:
-- **Paradigma Orientado a Objetos (POO).**
-- **Separação de Camadas:**
-  - `src/core/`: Leitura de configuração e exceções.
-  - `src/utils/`: Factory da SparkSession e logs.
-  - `src/data_io/`: Abstração de leitura e escrita (Strategy Pattern).
-  - `src/transforms/`: **Transformações Puras** (funções/classes que recebem DataFrames e retornam DataFrames, sem tocar no disco).
-  - `src/jobs/`: Orquestração do pipeline.
-  - `src/main.py`: **Composition Root** (injeta as dependências e inicia o job).
+### 6.1 Atualize o `AGENTS.md` no Editor Visual
 
-### 5.2 Atualize o `AGENTS.md` para a v2
-
-Substitua o conteúdo de `AGENTS.md` pelo checkpoint v2:
+Abra o `AGENTS.md` no VS Code e atualize para a versão 2:
 
 ```markdown
 # AGENTS.md — Versão 2: Clean Architecture e POO
@@ -391,17 +397,17 @@ Você é um **Engenheiro de Dados Sênior** especialista em Apache Spark e Clean
 O código deve estar desacoplado nas camadas de `src/`, executando via `spark-submit ./src/main.py` e gerando o resultado em `./data/output/top_10_clientes`.
 ```
 
-*(Nota: este checkpoint está disponível em `specs/checkpoints/AGENTS-v2-clean-architecture.md`).*
+*(Nota: modelo salvo em `specs/checkpoints/AGENTS-v2-clean-architecture.md`).*
 
-### 5.3 Reconcilie o Projeto com o OpenCode
+### 6.2 Reconcilie o Projeto com o OpenCode
 
-Inicie o OpenCode:
+Salve o arquivo (`Ctrl + S`). No terminal:
 
 ```sh
-ollama launch opencode --model gemma4:cloud
+opencode
 ```
 
-Solicite a refatoração orientada pela spec:
+Solicite a refatoração orientada pela nova spec:
 
 ```text
 O arquivo @AGENTS.md foi atualizado para a Versão 2. Refatore o projeto para adotar a Clean Architecture, POO e a estrutura modular em src/, preservando todas as regras de negócio já estabelecidas.
@@ -416,15 +422,15 @@ spark-submit ./src/main.py
 ```
 
 Confira a saída em `./data/output/top_10_clientes`.  
-**Resultado da Fase 2:** Arquitetura limpa, código modular, testável e manutenível. Mas como provamos que as regras de negócio não quebram em uma alteração futura?
+**Resultado da Fase 2:** Código profissional, desacoplado em camadas e testável.
 
 ---
 
-## Parte 6 — SDD Fase 3: Confiabilidade e Automação: Regras de Negócio viram Testes (`AGENTS.md` v3)
+## Parte 7 — SDD Fase 3: Confiabilidade e automação: Regras viram testes (`AGENTS.md` v3)
 
 O ápice do Spec-Driven Development acontece quando os **Critérios de Aceite** definidos na especificação se transformam diretamente em **Asserções de Testes Automatizados**.
 
-### 6.1 Da Regra de Negócio ao Teste Unitário
+### 7.1 Da Regra de Negócio ao Teste Unitário
 
 | Regra de Negócio na Spec | Como o PyTest valida em `tests/test_vendas_transforms.py` |
 | :--- | :--- |
@@ -435,9 +441,9 @@ O ápice do Spec-Driven Development acontece quando os **Critérios de Aceite** 
 
 Como a camada `src/transforms/` é composta por **transformações puras**, os testes usam `spark.createDataFrame` em memória — rodando em segundos **sem precisar de dados no disco**.
 
-### 6.2 Atualize o `AGENTS.md` para a v3 (Produção e DoD Completa)
+### 7.2 Atualize o `AGENTS.md` para a v3 (DoD Completa)
 
-Substitua o conteúdo de `AGENTS.md` pela versão final:
+No VS Code, atualize o `AGENTS.md`:
 
 ```markdown
 # AGENTS.md — Versão 3: Produção, Qualidade e Automação (DoD Completa)
@@ -505,14 +511,14 @@ Você é um **Engenheiro de Dados Sênior** especialista em Apache Spark e Clean
 4. Pipeline executando ponta a ponta via `spark-submit ./src/main.py` e gerando o relatório final em `./data/output/top_10_clientes`.
 ```
 
-*(Nota: este checkpoint está disponível no repositório em `specs/checkpoints/AGENTS-v3-producao.md`).*
+*(Nota: modelo salvo em `specs/checkpoints/AGENTS-v3-producao.md`).*
 
-### 6.3 Implementando a Suíte de Qualidade com o OpenCode
+### 7.3 Implementando Testes e Makefile com o OpenCode
 
-No terminal:
+Salve o arquivo (`Ctrl + S`). No terminal:
 
 ```sh
-ollama launch opencode --model gemma4:cloud
+opencode
 ```
 
 Prompt:
@@ -523,9 +529,9 @@ O arquivo @AGENTS.md foi atualizado para a Versão 3. Elabore a suíte completa 
 
 Saia do OpenCode (`/exit`).
 
-### 6.4 Validando a Definição de Pronto (DoD)
+### 7.4 Validando a Definição de Pronto (DoD)
 
-Agora execute os comandos de validação profissional:
+Execute os comandos de validação profissional:
 
 1. **Formatação e Estilo:**
    ```sh
@@ -545,7 +551,7 @@ Agora execute os comandos de validação profissional:
    spark-submit ./src/main.py
    ```
 
-### 6.5 A Revisão Humana Continua Indispensável
+### 7.5 A Revisão Humana Continua Indispensável
 
 Mesmo com 100% dos testes passando, a revisão humana de engenharia é o selo final de aprovação:
 - As camadas estão verdadeiramente desacopladas?
@@ -556,7 +562,7 @@ Mesmo com 100% dos testes passando, a revisão humana de engenharia é o selo fi
 
 ---
 
-## Parte 7 — Trilha avançada (opcional): refatorando a spec em cadeia modular
+## Parte 8 — Trilha avançada (opcional): refatorando a spec em cadeia modular
 
 Num único arquivo (`AGENTS.md`) convivem quatro preocupações distintas: intenção de negócio, regra analítica, contrato de dados e arquitetura de software.
 
@@ -582,7 +588,31 @@ O agente atualiza a lógica, atualiza as asserções do `pytest`, e o pipeline c
 
 ---
 
-## Apêndice A — Executando o Laboratório com Aider (Fluxo Legado)
+## Apêndice A — Utilizando o Ollama (Modelos Locais e Cloud com `gemma4:cloud`)
+
+O container Docker do laboratório já possui o serviço do **Ollama** pré-instalado e rodando em background na porta local `11434`. Caso você queira utilizar modelos específicos gerenciados pelo Ollama:
+
+### 1. Autenticação para Modelos Cloud (Gemma 4 Cloud)
+
+Para modelos executados via Ollama Cloud (como o `gemma4:cloud`), faça login uma única vez no terminal:
+
+```sh
+ollama login
+```
+
+### 2. Inicializando o OpenCode Conectado ao Ollama
+
+Inicie o OpenCode apontando diretamente para o modelo desejado no Ollama:
+
+```sh
+ollama launch opencode --model gemma4:cloud
+```
+
+*(Ou para modelos locais baixados na máquina, ex.: `ollama run qwen3.5`).*
+
+---
+
+## Apêndice B — Executando o Laboratório com Aider (Fluxo Legado)
 
 > **Nota:** Nas edições anteriores deste laboratório, o **Aider** foi utilizado como agente de IA de linha de comando padrão. Nesta versão do material, o **OpenCode** passou a ser a ferramenta padrão da aula. Mantemos este fluxo documentado como referência técnica e alternativa de estudo.
 
@@ -599,7 +629,7 @@ aider-install
 
 ### 2. Inicialização com o Ollama
 
-Com o servidor do Ollama ativo, inicialize o Aider apontando para o modelo desejado (ex: `gemma4:cloud`):
+Com o servidor do Ollama ativo, inicialize o Aider apontando para o modelo desejado:
 
 ```sh
 aider --model ollama/gemma4:cloud
@@ -629,11 +659,11 @@ Após aprovar o plano, autorize a escrita do código. O Aider gerará os diffs e
 
 ---
 
-## Apêndice B — Panorama de ferramentas e ecossistema de Coding Agents
+## Apêndice C — Panorama de ferramentas e ecossistema de Coding Agents
 
-O fluxo deste laboratório utiliza **OpenCode + Ollama** integrado ao container Docker oficial. No entanto, os mesmos princípios de Spec-Driven Development (SDD) se aplicam a todo o ecossistema moderno de ferramentas de IA para desenvolvimento:
+O fluxo deste laboratório utiliza **OpenCode** integrado ao container Docker oficial. No entanto, os mesmos princípios de Spec-Driven Development (SDD) se aplicam a todo o ecossistema moderno de ferramentas de IA para desenvolvimento:
 
-1. **OpenCode:** Coding agent open source em terminal, altamente integrado ao Ollama e fluxo Spec-Driven.
+1. **OpenCode:** Coding agent open source em terminal, altamente integrado ao ecossistema de modelos e fluxo Spec-Driven.
 2. **Aider:** Agente de terminal com automação forte de commits Git e edição contextual.
 3. **VS Code / Cursor:** Extensões de assistência de código, chat inline e autocomplete.
 4. **GitHub Copilot / Copilot Workspace:** Assistente de desenvolvimento e geração de tarefas dirigidas por spec.
