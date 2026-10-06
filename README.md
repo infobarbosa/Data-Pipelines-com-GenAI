@@ -17,9 +17,10 @@ A jornada deste laboratório é **incremental e sem atrito**:
 1. **Primeiro contato atômico ("Hello World"):** Um prompt simples digitado à mão (*"Crie um script que leia um arquivo csv e converta em parquet"*) para ambientar o aluno com o agente em 2 minutos, sem necessidade de logins ou downloads de modelos pesados.
 2. **O Projeto Real e a Spec via `/init`:** Início do projeto `top-10-clientes` e criação da especificação inicial usando o comando nativo `/init` do OpenCode.
 3. **Ponto de Partida (Prompt Ad-hoc):** Observação de como o agente se comporta sem regras explícitas e análise crítica das **decisões de negócio silenciosas e não-determinísticas**.
-4. **Shift-Left no Editor Visual:** Evolução progressiva do `AGENTS.md` diretamente no editor visual do VS Code (evitando problemas de copiar/colar no terminal do navegador), cobrindo regras de negócio, arquitetura desacoplada e testes unitários.
+4. **Shift-Left e Evolução Mista da Spec:** O aluno faz o append das regras de negócio no editor visual do VS Code; nas etapas seguintes de Clean Architecture e testes, usa o próprio agente para editar o `AGENTS.md`.
+5. **Modo Planejamento (Plan First):** Adoção sistemática da exigência de um plano passo a passo do agente antes da execução e alteração de arquivos de código.
 
-A spec (`AGENTS.md`) é a **fonte da verdade**; o código é uma consequência.
+A spec (`AGENTS.md`) é a **fonte da verdade**; o plano estrutura o raciocínio; o código é uma consequência.
 
 ---
 
@@ -28,7 +29,8 @@ A spec (`AGENTS.md`) é a **fonte da verdade**; o código é uma consequência.
 - **Primeiros passos com Coding Agents:** Como interagir com o **OpenCode** de forma imediata via terminal.
 - **O perigo do Prompt Ad-hoc:** Por que a IA toma decisões de negócio perigosas e silenciosas quando não é balizada por uma especificação.
 - **Spec-Driven Development (SDD) & Shift-Left:** Como escrever regras de negócio determinísticas e contratos de dados *antes* do código.
-- **Evolução Arquitetural no Editor Visual:** Como alimentar e refinar o `AGENTS.md` no VS Code guiando a refatoração para Clean Architecture e POO.
+- **Modo Planejamento (Plan Mode):** Como estruturar o fluxo de trabalho (Especificar ➔ Planejar ➔ Revisar ➔ Executar) para evitar alucinações e destruição de código.
+- **Co-autoria da Spec com o Agente:** Como delegar ao agente a redação de seções técnicas no `AGENTS.md` (Clean Architecture e Testes) sob validação humana.
 - **Critérios de Aceite como Testes:** Como transformar requisitos de negócio em asserções automatizadas no PySpark (`pytest`).
 - **Ecossistema Flexível de Modelos:** Como começar com modelos rápidos integrados e, opcionalmente, conectar modelos locais ou cloud via **Ollama** (`gemma4:cloud`).
 
@@ -281,156 +283,185 @@ Analise o código gerado à luz de quatro questões fundamentais que a IA precis
 
 ---
 
-## Parte 5 — SDD Fase 1: Formalizando regras de negócio e contratos (`AGENTS.md` v1)
+## Parte 5 — SDD Fase 1: Formalizando regras de negócio e contratos (`AGENTS.md`)
 
-Agora aplicamos o **Shift-Left**: vamos blindar as regras de negócio e os contratos de dados antes de deixar a IA gerar código.
+Agora aplicamos o **Shift-Left**: blindamos as regras de negócio e os contratos de dados antes de deixar a IA gerar ou refatorar código.
 
-### 5.1 Editando o `AGENTS.md` no Editor Visual
+O comando `/init` que executamos na Parte 3 já criou o esqueleto básico do `AGENTS.md`. No entanto, nenhum modelo de IA é capaz de adivinhar os requisitos específicos do seu domínio de negócio. O papel do engenheiro é complementar essa especificação com clareza funcional.
 
-Abra o arquivo `AGENTS.md` na árvore do VS Code à esquerda e substitua seu conteúdo pelo texto abaixo:
+### 5.1 Adicionando as Regras de Negócio (Append no Editor Visual)
+
+Abra o arquivo `AGENTS.md` na árvore lateral esquerda do VS Code.  
+Role até o final do arquivo e **acrescente (append)** o seguinte bloco de regras de negócio e contratos:
 
 ```markdown
-# AGENTS.md — Versão 1: Regras de Negócio e Contratos de Dados
 
-## 1. Persona e Contexto
-Você é um **Engenheiro de Dados Sênior** especialista em Apache Spark. Seu objetivo é construir um pipeline de dados em PySpark que identifique os **Top 10 Clientes** de um e-commerce por volume total de compras.
+## Regras de Negócio e Contratos de Dados (Mandatórios)
 
-## 2. Regras de Negócio e Critérios de Aceite (Mandatórios)
-1. **Métrica de Ranqueamento:**
-   - O valor de cada item de pedido é dado por: `VALOR_UNITARIO * QUANTIDADE`.
-   - O total do cliente é a soma (`SUM`) de todos os seus pedidos válidos no período.
-2. **Esquema e Nomenclatura da Saída:**
-   - O DataFrame de saída deve conter EXATAMENTE as seguintes colunas:
-     - `id_cliente` (Long)
-     - `nome_cliente` (String)
-     - `valor_total_gasto` (Double)
-3. **Determinismo e Regra de Desempate (Crítico):**
-   - No Apache Spark distribuído, empates de valores geram rankings não-determinísticos se não houver um critério de desempate explícito.
-   - O ranking DEVE ordenar por:
-     - 1º critério: `valor_total_gasto` em ordem DECRESCENTE (`DESC`).
-     - 2º critério (desempate determinístico): `id_cliente` em ordem CRESCENTE (`ASC`).
-4. **Filtros e Integridade de Dados:**
-   - Clientes sem pedidos registrados NÃO devem constar no ranking (apenas clientes com compras ativas).
-   - Pedidos cujo `ID_CLIENTE` não possua registro correspondente na base de clientes devem ser descartados.
-5. **Volume de Saída:**
-   - O relatório deve conter exatamente os 10 maiores clientes (ou menos, caso haja menos de 10 clientes com pedidos válidos).
+### 1. Métrica de Ranqueamento
+- O valor de cada item de pedido é calculado por: `VALOR_UNITARIO * QUANTIDADE`.
+- O total gasto por cliente é a soma (`SUM`) de todos os seus pedidos válidos no período.
 
-## 3. Diretriz de Configuração (Zero Hardcoding)
-Nenhum caminho de arquivo ou parâmetro deve estar fixado ("hardcoded") no código. Utilize um arquivo de configuração **`config/config.yaml`** para definir os caminhos dos datasets de entrada e da pasta de saída.
+### 2. Esquema e Contrato de Saída
+- O DataFrame final deve conter estritamente as seguintes colunas e tipos:
+  - `id_cliente` (Long)
+  - `nome_cliente` (String)
+  - `valor_total_gasto` (Double)
 
-## 4. Datasets de Entrada
-- **Clientes (JSON comprimido):** `./data/input/dataset-json-clientes/data/clientes.json.gz`
-- **Pedidos (CSV comprimido, sep ';'):** `./data/input/datasets-csv-pedidos/data/pedidos/pedidos-2026-01.csv.gz`
+### 3. Determinismo e Regra de Desempate (Crítico)
+- Em pipelines distribuídos (Apache Spark), ordenações com valores idênticos geram resultados não-determinísticos se não houver um critério de desempate explícito.
+- O ranking DEVE ordenar estritamente por:
+  1. `valor_total_gasto` em ordem DECRESCENTE (`DESC`).
+  2. `id_cliente` em ordem CRESCENTE (`ASC`) como critério determinístico de desempate.
 
-## 5. Definição de Pronto (DoD v1)
-O pipeline deve ler a configuração de `config/config.yaml`, processar os dados brutos e salvar o ranking determinístico em `./data/output/top_10_clientes`.
+### 4. Filtros e Integridade de Dados
+- Apenas clientes com compras ativas no período devem constar no ranking (Inner Join). Clientes sem pedidos registrados NÃO devem aparecer no relatório.
+- Pedidos cujo `ID_CLIENTE` não possua correspondência na base de clientes devem ser descartados.
+
+### 5. Volume e Configuração (Zero Hardcoding)
+- O relatório deve conter exatamente os 10 maiores clientes (ou menos, se houver menos de 10 clientes válidos).
+- Nenhum caminho de arquivo deve estar fixado ("hardcoded") no código. Utilize um arquivo `config/config.yaml` para mapear os datasets de entrada e o diretório de saída `./data/output/top_10_clientes`.
 ```
 
-*(Nota: este modelo também está salvo para referência em `specs/checkpoints/AGENTS-v1-regras-e-contratos.md`).*
+Salve o arquivo (`Ctrl + S` / `Cmd + S`).
 
-### 5.2 Dispare a Reconciliação no OpenCode
-
-Salve o arquivo (`Ctrl + S` / `Cmd + S`). No terminal, inicie o OpenCode:
-
-```sh
-opencode
-```
-
-Envie o prompt contextual:
-
-```text
-Verifique o arquivo @AGENTS.md. Reestruture o projeto para atender rigorosamente às regras de negócio, ao determinismo de desempate e ao arquivo de configuração definidos.
-```
-
-Saia do OpenCode (`/exit`).  
-**Resultado da Fase 1:** O código agora respeita as regras de negócio, o desempate é determinístico e não há caminhos hardcoded. Mas como está a arquitetura de software?
+*(Nota: um gabarito desta primeira fase também está disponível para consulta em `specs/checkpoints/AGENTS-v1-regras-e-contratos.md`).*
 
 ---
 
-## Parte 6 — SDD Fase 2: Elevando a régua arquitetural: Clean Architecture & POO (`AGENTS.md` v2)
+### 5.2 Boas Práticas com Agentes: O Modo Planejamento (Plan Mode)
 
-Um script procedural único é difícil de testar e manter. Vamos evoluir a spec para exigir separação total de responsabilidades.
+Antes de solicitar alterações de código, introduzimos aqui um princípio fundamental da engenharia de software com agentes de IA: **sempre exija um plano antes da execução**.
 
-### 6.1 Atualize o `AGENTS.md` no Editor Visual
+Quando você pede para um modelo modificar arquivos imediatamente, ele tende a assumir premissas implícitas, ignorar restrições sutis ou sobrescrever estruturas funcionais. Ao exigir um plano prévio, você força a IA a estruturar o raciocínio, permitindo que você aprove ou ajuste a abordagem antes que qualquer linha de código seja alterada.
 
-Abra o `AGENTS.md` no VS Code e atualize para a versão 2:
+O fluxo de trabalho profissional segue o ciclo:  
+**Especificar (`AGENTS.md`) ➔ Planejar (Revisão Humana) ➔ Executar (Implementação).**
 
-```markdown
-# AGENTS.md — Versão 2: Clean Architecture e POO
+---
 
-## 1. Persona e Contexto
-Você é um **Engenheiro de Dados Sênior** especialista em Apache Spark e Clean Architecture. Seu objetivo é construir um pipeline de dados em PySpark modular e orientado a objetos que identifique os **Top 10 Clientes** de um e-commerce por volume total de compras.
+### 5.3 Solicitando o Plano no OpenCode
 
-## 2. Princípios Arquiteturais (Mandatórios)
-* **Paradigma:** Orientação a Objetos (POO).
-* **Clean Architecture:** Separação total entre lógica de configuração, I/O (leitura/escrita), lógica pura de transformação e orquestração do pipeline.
-* **Injeção de Dependência:** O script `main.py` atua como *Composition Root*, instanciando e injetando as dependências (`SparkManager`, `DataIOManager`) no job de orquestração.
-* **Config-Driven:** Nenhum caminho físico deve estar no código. Utilize o arquivo **`config/config.yaml`**.
-* **Transformações Puras:** As classes em `src/transforms/` devem conter métodos que recebem DataFrames e retornam DataFrames, sem executar leitura de disco nem escrita de arquivos.
-
-## 3. Estrutura de Pastas Esperada
-```text
-.
-├── config/             # Arquivo de configuração YAML
-│   └── config.yaml
-└── src/                # Código-fonte da aplicação
-    ├── core/           # ConfigLoader e Exceções customizadas
-    ├── utils/          # SparkManager (Factory) e LoggingSetup
-    ├── data_io/        # DataIOManager (Strategy / Abstração de I/O)
-    ├── transforms/     # Lógica pura de transformação (Top 10)
-    ├── jobs/           # Orquestração do pipeline (run_top_10.py)
-    └── main.py         # Composition Root e ponto de entrada
-```
-
-## 4. Regras de Negócio e Critérios de Aceite (Mandatórios)
-1. **Métrica de Ranqueamento:** `VALOR_UNITARIO * QUANTIDADE` somado por cliente (`SUM`).
-2. **Esquema de Saída:** Exatamente as colunas `id_cliente` (Long), `nome_cliente` (String) e `valor_total_gasto` (Double).
-3. **Determinismo e Desempate:** Ordenação decrescente por `valor_total_gasto`, com desempate determinístico crescente por `id_cliente`.
-4. **Filtros:** Apenas clientes com compras ativas. Pedidos sem correspondência em clientes devem ser descartados.
-5. **Volume de Saída:** Limite de 10 clientes no ranking final.
-
-## 5. Datasets de Entrada
-- **Clientes (JSON comprimido):** `./data/input/dataset-json-clientes/data/clientes.json.gz`
-- **Pedidos (CSV comprimido, sep ';'):** `./data/input/datasets-csv-pedidos/data/pedidos/pedidos-2026-01.csv.gz`
-
-## 6. Definição de Pronto (DoD v2)
-O código deve estar desacoplado nas camadas de `src/`, executando via `spark-submit ./src/main.py` e gerando o resultado em `./data/output/top_10_clientes`.
-```
-
-*(Nota: modelo salvo em `specs/checkpoints/AGENTS-v2-clean-architecture.md`).*
-
-### 6.2 Reconcilie o Projeto com o OpenCode
-
-Salve o arquivo (`Ctrl + S`). No terminal:
+No terminal, inicie o OpenCode dentro de `top-10-clientes`:
 
 ```sh
 opencode
 ```
 
-Solicite a refatoração orientada pela nova spec:
+Envie o prompt solicitando exclusivamente o planejamento:
 
 ```text
-O arquivo @AGENTS.md foi atualizado para a Versão 2. Refatore o projeto para adotar a Clean Architecture, POO e a estrutura modular em src/, preservando todas as regras de negócio já estabelecidas.
+Analise o arquivo @AGENTS.md com as novas regras de negócio e contratos de dados.
+NÃO altere nenhum arquivo de código ainda.
+Apresente primeiro um plano passo a passo detalhando as modificações necessárias no projeto para atender rigorosamente a essas regras, com atenção especial ao determinismo de desempate (ordenação composta), ao Inner Join para exclusão de inativos e ao arquivo config/config.yaml.
 ```
 
-Saia do OpenCode (`/exit`).  
-Execute o pipeline refatorado:
+#### O que você deve avaliar no plano da IA:
+1. Ela identificou a necessidade da ordenação composta (`valor_total_gasto DESC` seguido de `id_cliente ASC`)?
+2. Ela propôs a criação do arquivo `config/config.yaml` em vez de caminhos hardcoded?
+3. Ela garantiu que clientes inativos não serão inseridos no ranking?
+
+### 5.4 Aprovando e Executando a Implementação
+
+Se o plano estiver aderente à especificação, autorize a execução com um comando simples:
+
+```text
+Plano aprovado. Pode prosseguir com a implementação dos arquivos conforme planejado.
+```
+
+O OpenCode criará o arquivo `config/config.yaml` e atualizará o script PySpark.  
+Após a conclusão, encerre o OpenCode com `/exit`.
+
+Execute o pipeline para validar:
+
+```sh
+spark-submit ./main.py
+```
+
+Confira o diretório de saída `./data/output/top_10_clientes`.  
+**Resultado da Fase 1:** As regras de negócio foram implementadas com precisão e determinismo. Mas o código ainda está concentrado em um único script.
+
+---
+
+## Parte 6 — SDD Fase 2: Elevando a régua arquitetural: Clean Architecture & POO via Agente
+
+Com as regras de negócio blindadas, nosso próximo objetivo é transformar o script monolítico em uma base de código modular, orientada a objetos e estruturada segundo os princípios da Clean Architecture.
+
+Em vez de você ter que redigir ou formatar dezenas de linhas de especificações arquiteturais manualmente no `AGENTS.md`, **vamos usar o próprio OpenCode como copiloto para atualizar a especificação**.
+
+### 6.1 Solicitando à IA a atualização do `AGENTS.md`
+
+No terminal, abra o OpenCode:
+
+```sh
+opencode
+```
+
+Instrua o agente a enriquecer a especificação com as diretrizes de arquitetura:
+
+```text
+Atualize o arquivo @AGENTS.md incorporando diretrizes de Clean Architecture e POO para PySpark:
+1. Organize o projeto na estrutura src/ com separação em camadas:
+   - src/core/ (ConfigLoader e exceções customizadas)
+   - src/utils/ (SparkManager para gerenciar a SparkSession)
+   - src/data_io/ (DataIOManager para abstração de leitura e escrita)
+   - src/transforms/ (Classes com transformações puras que recebem e retornam DataFrames, sem I/O direto)
+   - src/jobs/ (Orquestração do pipeline)
+   - src/main.py (Composition Root / Ponto de entrada com injeção de dependência)
+2. Preserve integralmente todas as regras de negócio, métricas, contratos de schema e critérios de desempate já existentes.
+```
+
+O OpenCode fará a edição direta do `AGENTS.md`.
+
+### 6.2 Validação Humana da Especificação
+
+Abra o arquivo `AGENTS.md` no VS Code.  
+Como engenheiro responsável, verifique se:
+- As diretrizes de Clean Architecture foram adicionadas de forma coerente.
+- A regra de desempate determinístico e o contrato de dados continuam intactos.
+
+*(Caso queira comparar com uma referência completa desta fase, consulte `specs/checkpoints/AGENTS-v2-clean-architecture.md`).*
+
+### 6.3 Modo Planejamento para a Refatoração Arquitetural
+
+Agora que a especificação arquitetural está formalizada, solicitamos o plano de refatoração ao OpenCode:
+
+```text
+Com base nas novas diretrizes de Clean Architecture do @AGENTS.md, apresente um plano de refatoração modular passo a passo antes de alterar os arquivos. Liste quais classes e módulos serão criados em src/ e como as dependências serão injetadas no main.py.
+```
+
+Avalie o plano:
+- A camada `src/transforms/` receberá apenas funções/classes puras?
+- O `main.py` atuará como *Composition Root*, orquestrando as dependências?
+
+### 6.4 Aprovando e Executando a Refatoração
+
+Após validar o plano:
+
+```text
+Plano aprovado. Execute a refatoração completa do projeto.
+```
+
+Encerre a sessão do OpenCode (`/exit`).  
+Execute o pipeline refatorado a partir da nova raiz modular:
 
 ```sh
 export PYTHONPATH=$(pwd)
 spark-submit ./src/main.py
 ```
 
-Confira a saída em `./data/output/top_10_clientes`.  
-**Resultado da Fase 2:** Código profissional, desacoplado em camadas e testável.
+Confira os resultados em `./data/output/top_10_clientes`.  
+**Resultado da Fase 2:** O projeto agora possui uma arquitetura desacoplada, profissional e modular.
 
 ---
 
-## Parte 7 — SDD Fase 3: Confiabilidade e automação: Regras viram testes (`AGENTS.md` v3)
+## Parte 7 — SDD Fase 3: Confiabilidade e automação: Regras viram testes (PyTest & Makefile)
 
 O ápice do Spec-Driven Development acontece quando os **Critérios de Aceite** definidos na especificação se transformam diretamente em **Asserções de Testes Automatizados**.
 
 ### 7.1 Da Regra de Negócio ao Teste Unitário
+
+Como a camada `src/transforms/` é composta por **transformações puras**, os testes usam `spark.createDataFrame` com dados sintéticos em memória — rodando em segundos **sem precisar ler dados do disco**:
 
 | Regra de Negócio na Spec | Como o PyTest valida em `tests/test_vendas_transforms.py` |
 | :--- | :--- |
@@ -439,99 +470,63 @@ O ápice do Spec-Driven Development acontece quando os **Critérios de Aceite** 
 | **Exclusão de Inativos** | Cria um cliente sem nenhum pedido associado e valida que ele NÃO consta no output. |
 | **Tamanho do Ranking** | Cria 15 clientes com compras e valida se o resultado final tem exatamente 10 linhas. |
 
-Como a camada `src/transforms/` é composta por **transformações puras**, os testes usam `spark.createDataFrame` em memória — rodando em segundos **sem precisar de dados no disco**.
+---
 
-### 7.2 Atualize o `AGENTS.md` para a v3 (DoD Completa)
+### 7.2 Solicitando à IA a inclusão dos Requisitos de Qualidade na Spec
 
-No VS Code, atualize o `AGENTS.md`:
+Novamente, utilizamos o OpenCode para atualizar o `AGENTS.md` com a Definição de Pronto (DoD) e os requisitos de automação.
 
-```markdown
-# AGENTS.md — Versão 3: Produção, Qualidade e Automação (DoD Completa)
-
-## 1. Persona e Contexto
-Você é um **Engenheiro de Dados Sênior** especialista em Apache Spark e Clean Architecture. Seu objetivo é construir um pipeline de dados em PySpark profissional, modular e testável que identifique os **Top 10 Clientes** de um e-commerce por volume total de compras.
-
-## 2. Princípios Arquiteturais (Mandatórios)
-* **Paradigma:** Orientação a Objetos (POO).
-* **Clean Architecture:** Separação total entre lógica de configuração, I/O (leitura/escrita), lógica pura de transformação e orquestração do pipeline.
-* **Injeção de Dependência:** O script `main.py` atua como *Composition Root*, instanciando e injetando as dependências (`SparkManager`, `DataIOManager`) no job de orquestração.
-* **Config-Driven:** Nenhum caminho físico ou parâmetro deve estar hardcoded. Utilize o arquivo **`config/config.yaml`**.
-* **Transformações Puras:** As classes em `src/transforms/` devem conter métodos que recebem DataFrames e retornam DataFrames, sem executar leitura de disco nem escrita de arquivos.
-
-## 3. Estrutura de Pastas Esperada
-```text
-.
-├── config/             # Configuração (RAIZ)
-│   └── config.yaml
-├── src/                # Código-fonte da aplicação
-│   ├── core/           # ConfigLoader e Exceções customizadas
-│   ├── utils/          # SparkManager (Factory) e LoggingSetup
-│   ├── data_io/        # DataIOManager (Strategy / Abstração de I/O)
-│   ├── transforms/     # Lógica pura de transformação (Top 10)
-│   ├── jobs/           # Orquestração do pipeline (run_top_10.py)
-│   └── main.py         # Composition Root e ponto de entrada
-├── tests/              # Testes unitários com pytest
-├── pyproject.toml      # Gestão de dependências e metadados
-└── Makefile            # Automação local (lint, test, package)
-```
-
-## 4. Regras de Negócio e Critérios de Aceite (Mandatórios)
-1. **Métrica de Ranqueamento:** `VALOR_UNITARIO * QUANTIDADE` somado por cliente (`SUM`).
-2. **Esquema e Nomenclatura da Saída:** Exatamente as colunas `id_cliente` (Long), `nome_cliente` (String) e `valor_total_gasto` (Double).
-3. **Determinismo e Regra de Desempate (Crítico):**
-   - 1º critério: `valor_total_gasto` em ordem DECRESCENTE (`DESC`).
-   - 2º critério (desempate determinístico): `id_cliente` em ordem CRESCENTE (`ASC`).
-4. **Filtros e Integridade de Dados:**
-   - Apenas clientes com compras ativas no período (Inner Join).
-   - Pedidos cujo `ID_CLIENTE` não conste na base de clientes devem ser descartados.
-5. **Volume de Saída:** Exatamente os 10 maiores clientes (ou menos, se houver menos de 10 clientes válidos).
-
-## 5. Qualidade e Automação Local
-* **Testes Unitários:** Criar `tests/test_vendas_transforms.py`.
-  - Utilizar `spark.createDataFrame` para gerar dados sintéticos em memória (sem depender do disco).
-  - Cobrir explicitamente os critérios de aceite:
-    - CA1: Cálculo e agregação do valor total.
-    - CA2: Validação da regra de desempate determinístico por `id_cliente`.
-    - CA3: Garantia de que clientes sem compras não figuram no resultado.
-    - CA4: Limite de 10 linhas.
-* **Makefile:** Fornecer os alvos:
-  - `make lint`: Executar `black` e `ruff`.
-  - `make test`: Executar `pytest`.
-  - `make package`: Gerar o arquivo `.whl` na pasta `dist/` via ferramenta `build`.
-* **Empacotamento:** Arquivo `pyproject.toml` configurado para empacotar o diretório `src/`.
-
-## 6. Datasets de Entrada
-- **Clientes (JSON comprimido):** `./data/input/dataset-json-clientes/data/clientes.json.gz`
-- **Pedidos (CSV comprimido, sep ';'):** `./data/input/datasets-csv-pedidos/data/pedidos/pedidos-2026-01.csv.gz`
-
-## 7. Definição de Pronto (DoD)
-1. Todos os testes unitários passando (`make test`).
-2. Código em conformidade com as regras de estilo (`make lint`).
-3. Pacote distribuível gerado com sucesso em `dist/` (`make package`).
-4. Pipeline executando ponta a ponta via `spark-submit ./src/main.py` e gerando o relatório final em `./data/output/top_10_clientes`.
-```
-
-*(Nota: modelo salvo em `specs/checkpoints/AGENTS-v3-producao.md`).*
-
-### 7.3 Implementando Testes e Makefile com o OpenCode
-
-Salve o arquivo (`Ctrl + S`). No terminal:
+Inicie o OpenCode:
 
 ```sh
 opencode
 ```
 
-Prompt:
+Envie o prompt para atualizar o `AGENTS.md`:
 
 ```text
-O arquivo @AGENTS.md foi atualizado para a Versão 3. Elabore a suíte completa de testes unitários em tests/test_vendas_transforms.py cobrindo os 4 critérios de aceite com dados sintéticos, e construa o Makefile e o pyproject.toml para atender à Definição de Pronto.
+Atualize o arquivo @AGENTS.md adicionando uma nova seção 'Qualidade e Automação Local' com:
+1. Suíte de testes unitários com pytest em tests/test_vendas_transforms.py cobrindo os 4 critérios de aceite com dados sintéticos em memória (sem depender de arquivos em disco).
+2. pyproject.toml para empacotamento do pacote Python a partir de src/.
+3. Makefile com os seguintes alvos:
+   - make lint: execução de black e ruff.
+   - make test: execução de pytest.
+   - make package: geração do pacote .whl na pasta dist/.
+4. Definição de Pronto (DoD) formal exigindo que todos os testes passem (make test) e o código atenda aos linters (make lint).
+```
+
+Abra o `AGENTS.md` no VS Code e inspecione as adições.  
+*(Gabarito de referência disponível em `specs/checkpoints/AGENTS-v3-producao.md`).*
+
+---
+
+### 7.3 Modo Planejamento para Testes e Automação
+
+Com a especificação completa, solicite o plano de implementação dos testes e da automação:
+
+```text
+Apresente um plano de implementação para a suíte de testes unitários em tests/ e para a infraestrutura de automação (Makefile e pyproject.toml) conforme especificado no @AGENTS.md. Aguarde minha aprovação antes de criar os arquivos.
+```
+
+Avalie o plano:
+- Os testes contemplam explicitamente o caso de teste para o desempate determinístico?
+- O Makefile possui os alvos exigidos?
+
+### 7.4 Aprovando e Executando a Implementação dos Testes
+
+Após validar o plano:
+
+```text
+Plano aprovado. Crie os testes unitários e os arquivos de automação.
 ```
 
 Saia do OpenCode (`/exit`).
 
-### 7.4 Validando a Definição de Pronto (DoD)
+---
 
-Execute os comandos de validação profissional:
+### 7.5 Validando a Definição de Pronto (DoD)
+
+Agora, valide a qualidade profissional do projeto executando os alvos do Makefile:
 
 1. **Formatação e Estilo:**
    ```sh
@@ -551,14 +546,16 @@ Execute os comandos de validação profissional:
    spark-submit ./src/main.py
    ```
 
-### 7.5 A Revisão Humana Continua Indispensável
+---
+
+### 7.6 A Revisão Humana Continua Indispensável
 
 Mesmo com 100% dos testes passando, a revisão humana de engenharia é o selo final de aprovação:
 - As camadas estão verdadeiramente desacopladas?
 - As docstrings e type hints explicam a intenção do código?
 - O arquivo gerado em `./data/output/top_10_clientes` é condizente com os dados reais?
 
-> **O agente acelera a escrita; você responde pela qualidade e pelo negócio.**
+> **O agente acelera a escrita e a especificação técnica; você conduz o processo, define as regras de negócio e responde pela qualidade da entrega.**
 
 ---
 
