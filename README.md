@@ -17,7 +17,7 @@ A jornada deste laboratório é **incremental e sem atrito**:
 1. **Primeiro contato atômico ("Hello World"):** Um prompt simples digitado à mão (*"Crie um script que leia um arquivo csv e converta em parquet"*) para ambientar o aluno com o agente em 2 minutos, sem necessidade de logins ou downloads de modelos pesados.
 2. **O Projeto Real e a Spec via `/init`:** Início do projeto `top-10-clientes` e criação da especificação inicial usando o comando nativo `/init` do OpenCode.
 3. **Ponto de Partida (Prompt Ad-hoc):** Observação de como o agente se comporta sem regras explícitas e análise crítica das **decisões de negócio silenciosas e não-determinísticas**.
-4. **Shift-Left e Evolução Mista da Spec:** O aluno faz o append das regras de negócio no editor visual do VS Code; nas etapas seguintes de Clean Architecture e testes, usa o próprio agente para editar o `AGENTS.md`.
+4. **Shift-Left e Evolução Incremental da Spec:** Adição inicial das regras de negócio no `AGENTS.md` e, nas etapas seguintes de Clean Architecture e testes, expansão da especificação pelo próprio agente sob validação humana.
 5. **Modo Planejamento (Plan First):** Adoção sistemática da exigência de um plano passo a passo do agente antes da execução e alteração de arquivos de código.
 
 A spec (`AGENTS.md`) é a **fonte da verdade**; o plano estrutura o raciocínio; o código é uma consequência.
@@ -224,7 +224,7 @@ Em ambientes baseados em navegador (`code-server`), copiar e colar textos grande
    /exit
    ```
 
-> 💡 **Ergonomia no VS Code:** A partir de agora, o arquivo `AGENTS.md` existe fisicamente no disco. Em vez de colar comandos gigantes no terminal, você simplesmente **abrirá o `AGENTS.md` no editor visual do VS Code** (clicando no arquivo na árvore lateral esquerda) para editá-lo confortavelmente.
+> 💡 **Nota:** Com o `AGENTS.md` criado na raiz do projeto, as especificações passam a ser mantidas diretamente no arquivo, evitando atritos de clipboard no terminal.
 
 ---
 
@@ -287,12 +287,11 @@ Analise o código gerado à luz de quatro questões fundamentais que a IA precis
 
 Agora aplicamos o **Shift-Left**: blindamos as regras de negócio e os contratos de dados antes de deixar a IA gerar ou refatorar código.
 
-O comando `/init` que executamos na Parte 3 já criou o esqueleto básico do `AGENTS.md`. No entanto, nenhum modelo de IA é capaz de adivinhar os requisitos específicos do seu domínio de negócio. O papel do engenheiro é complementar essa especificação com clareza funcional.
+O comando `/init` que executamos na Parte 3 gerou o esqueleto técnico inicial do `AGENTS.md`. Como o modelo não conhece as particularidades do domínio, o primeiro passo de engenharia é complementar o arquivo com a persona, regras funcionais e contratos de dados.
 
-### 5.1 Adicionando a Persona e as Regras de Negócio (Append no Editor Visual)
+### 5.1 Adicionando a Persona e as Regras de Negócio
 
-Abra o arquivo `AGENTS.md` na árvore lateral esquerda do VS Code.  
-Role até o final do arquivo e **acrescente (append)** o seguinte bloco estruturado contendo a persona e as regras funcionais:
+No arquivo `AGENTS.md`, adicione o seguinte bloco com a persona e as regras funcionais:
 
 ```markdown
 
@@ -326,9 +325,7 @@ Você é um(a) **Engenheiro(a) de Dados Sênior** especialista em Apache Spark. 
 - Nenhum caminho de arquivo deve estar fixado ("hardcoded") no código. Utilize um arquivo `config/config.yaml` para mapear os datasets de entrada e o diretório de saída `./data/output/top_10_clientes`.
 ```
 
-Salve o arquivo (`Ctrl + S` / `Cmd + S`).
-
-*(Nota: um gabarito desta primeira fase também está disponível para consulta em `specs/checkpoints/AGENTS-v1-regras-e-contratos.md`).*
+*(Nota: um gabarito de referência desta etapa está disponível em `specs/checkpoints/AGENTS-v1-regras-e-contratos.md`).*
 
 ---
 
@@ -416,14 +413,13 @@ Atualize o arquivo @AGENTS.md incorporando diretrizes de Clean Architecture e PO
 
 O OpenCode fará a edição direta do `AGENTS.md`.
 
-### 6.2 Validação Humana da Especificação
+### 6.2 Validação da Especificação
 
-Abra o arquivo `AGENTS.md` no VS Code.  
-Como engenheiro responsável, verifique se:
-- As diretrizes de Clean Architecture foram adicionadas de forma coerente.
-- A regra de desempate determinístico e o contrato de dados continuam intactos.
+Inspecione o `AGENTS.md` e verifique se:
+- As diretrizes de Clean Architecture foram incorporadas com clareza.
+- O desempate determinístico e os contratos de dados anteriores foram preservados.
 
-*(Caso queira comparar com uma referência completa desta fase, consulte `specs/checkpoints/AGENTS-v2-clean-architecture.md`).*
+*(Para comparar com uma referência completa desta fase, consulte `specs/checkpoints/AGENTS-v2-clean-architecture.md`).*
 
 ### 6.3 Modo Planejamento para a Refatoração Arquitetural
 
@@ -498,7 +494,7 @@ Atualize o arquivo @AGENTS.md adicionando uma nova seção 'Qualidade e Automaç
 4. Definição de Pronto (DoD) formal exigindo que todos os testes passem (make test) e o código atenda aos linters (make lint).
 ```
 
-Abra o `AGENTS.md` no VS Code e inspecione as adições.  
+Inspecione o `AGENTS.md` para conferir a inclusão da suíte de testes e dos alvos do Makefile.  
 *(Gabarito de referência disponível em `specs/checkpoints/AGENTS-v3-producao.md`).*
 
 ---
