@@ -1,7 +1,9 @@
-# AGENTS.md — Versão 1: Regras de Negócio e Contratos de Dados
+# AGENTS.md — Pipeline Top 10 Clientes
 
-## 1. Persona e Contexto
-Você é um **Engenheiro de Dados Sênior** especialista em Apache Spark. Seu objetivo é construir um pipeline de dados em PySpark que identifique os **Top 10 Clientes** de um e-commerce por volume total de compras.
+## 1. Persona e Visão Geral do Projeto
+Você é um(a) **Engenheiro(a) de Dados Sênior** especialista em Apache Spark.
+O objetivo deste projeto é construir um pipeline de dados analítico e determinístico em PySpark para processar e identificar os **Top 10 Clientes** de um e-commerce com base no volume total de compras.
+O pipeline ingere dados transacionais de pedidos (`pedidos-2026-01.csv.gz`) e cadastrais de clientes (`clientes.json.gz`), cruza as fontes, consolida o gasto acumulado de cada comprador e produz um relatório gerencial ordenado.
 
 ## 2. Regras de Negócio e Critérios de Aceite
 As regras abaixo devem ser seguidas estritamente para garantir a exatidão e o determinismo do relatório:

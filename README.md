@@ -287,16 +287,19 @@ Analise o código gerado à luz de quatro questões fundamentais que a IA precis
 
 Agora aplicamos o **Shift-Left**: blindamos as regras de negócio e os contratos de dados antes de deixar a IA gerar ou refatorar código.
 
-O comando `/init` que executamos na Parte 3 gerou o esqueleto técnico inicial do `AGENTS.md`. Como o modelo não conhece as particularidades do domínio, o primeiro passo de engenharia é complementar o arquivo com a persona, regras funcionais e contratos de dados.
+O comando `/init` que executamos na Parte 3 gerou o esqueleto técnico inicial do `AGENTS.md`. Agora, vamos substituir integralmente seu conteúdo pela especificação formal do projeto, introduzindo o objetivo do pipeline, a persona e as regras funcionais.
 
-### 5.1 Adicionando a Persona e as Regras de Negócio
+### 5.1 Definindo a Especificação Inicial do Projeto
 
-No arquivo `AGENTS.md`, adicione o seguinte bloco com a persona e as regras funcionais:
+Substitua todo o conteúdo do arquivo `AGENTS.md` pelo texto abaixo:
 
 ```markdown
+# AGENTS.md — Pipeline Top 10 Clientes
 
-## 1. Persona e Contexto
-Você é um(a) **Engenheiro(a) de Dados Sênior** especialista em Apache Spark. Seu objetivo é construir um pipeline de dados analítico e determinístico em PySpark que identifique os **Top 10 Clientes** de um e-commerce por volume total de compras.
+## 1. Persona e Visão Geral do Projeto
+Você é um(a) **Engenheiro(a) de Dados Sênior** especialista em Apache Spark.
+O objetivo deste projeto é construir um pipeline de dados analítico e determinístico em PySpark para processar e identificar os **Top 10 Clientes** de um e-commerce com base no volume total de compras.
+O pipeline ingere dados transacionais de pedidos (`pedidos-2026-01.csv.gz`) e cadastrais de clientes (`clientes.json.gz`), cruza as fontes, consolida o gasto acumulado de cada comprador e produz um relatório gerencial ordenado.
 
 ## 2. Regras de Negócio e Critérios de Aceite
 
@@ -322,10 +325,17 @@ Você é um(a) **Engenheiro(a) de Dados Sênior** especialista em Apache Spark. 
 
 ### 5. Volume e Configuração
 - O relatório deve conter exatamente os 10 maiores clientes (ou menos, se houver menos de 10 clientes válidos).
-- Nenhum caminho de arquivo deve estar fixado no código. Utilize um arquivo `config/config.yaml` para mapear os datasets de entrada e o diretório de saída `./data/output/top_10_clientes`.
+- Nenhum caminho de arquivo deve estar fixado no código. Utilize um arquivo `config/config.yaml` para mapear os datasets de entrada e o diretório de saída.
+
+## 3. Datasets de Entrada
+- **Clientes (JSON comprimido):** `./data/input/dataset-json-clientes/data/clientes.json.gz`
+- **Pedidos (CSV comprimido, sep ';'):** `./data/input/datasets-csv-pedidos/data/pedidos/pedidos-2026-01.csv.gz`
+
+## 4. Definição de Pronto (DoD)
+O pipeline deve carregar as configurações de `config/config.yaml`, processar os dados brutos e salvar o ranking determinístico em `./data/output/top_10_clientes`.
 ```
 
-*(Nota: um gabarito de referência desta etapa está disponível em `specs/checkpoints/AGENTS-v1-regras-e-contratos.md`).*
+*(Nota: este modelo também está salvo para referência em `specs/checkpoints/AGENTS-v1-regras-e-contratos.md`).*
 
 ---
 
@@ -348,12 +358,13 @@ No terminal, inicie o OpenCode dentro de `top-10-clientes`:
 opencode
 ```
 
-Envie o prompt contextualizando a persona e solicitando exclusivamente o planejamento:
+Envie o prompt contextualizando o projeto, a persona e solicitando exclusivamente o planejamento:
 
 ```text
-Atuando como Engenheiro(a) de Dados Sênior especialista em Apache Spark, analise o arquivo @AGENTS.md com as novas regras de negócio e contratos de dados.
+Atuando como Engenheiro(a) de Dados Sênior especialista em Apache Spark, analise o arquivo @AGENTS.md.
+Estamos construindo o pipeline analítico dos Top 10 Clientes de um e-commerce, consolidando o faturamento a partir dos dados de pedidos e clientes.
 NÃO altere nenhum arquivo de código ainda.
-Apresente primeiro um plano passo a passo detalhando as modificações necessárias no projeto para atender rigorosamente a essas regras, com atenção especial ao determinismo de desempate (ordenação composta), ao Inner Join para exclusão de inativos e ao arquivo config/config.yaml.
+Apresente primeiro um plano passo a passo detalhando as modificações necessárias no projeto para atender rigorosamente às regras de negócio, aos contratos de dados e ao arquivo config/config.yaml definidos na especificação.
 ```
 
 #### O que você deve avaliar no plano da IA:
