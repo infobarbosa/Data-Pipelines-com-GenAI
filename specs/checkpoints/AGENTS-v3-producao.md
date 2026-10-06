@@ -54,7 +54,7 @@ Você é um **Engenheiro de Dados Sênior** especialista em Apache Spark e Clean
 
 ## 6. Datasets de Entrada
 - **Clientes (JSON comprimido):** `./data/input/dataset-json-clientes/data/clientes.json.gz`
-- **Pedidos (CSV comprimido, sep ';'):** `./data/input/datasets-csv-pedidos/data/pedidos/pedidos-2026-01.csv.gz`
+- **Pedidos (CSV comprimido, sep ';'):** `./data/input/datasets-csv-pedidos/data/pedidos/` (ler todos os arquivos `.csv.gz` do diretório)
 
 ## 7. Definição de Pronto (DoD)
 1. Todos os testes unitários passando (`make test`).

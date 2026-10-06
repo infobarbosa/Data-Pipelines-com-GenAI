@@ -3,7 +3,7 @@
 
 ## Fontes de Dados
 - **clientes:** Formato JSON comprimido (`./data/input/dataset-json-clientes/data/clientes.json.gz`) — Grão: 1 linha por cliente.
-- **pedidos:** Formato CSV comprimido com separador `;` (`./data/input/datasets-csv-pedidos/data/pedidos/pedidos-2026-01.csv.gz`) — Grão: 1 linha por item de pedido.
+- **pedidos:** Formato CSV comprimido com separador `;` (`./data/input/datasets-csv-pedidos/data/pedidos/`) — Múltiplos arquivos comprimidos no diretório. Grão: 1 linha por item de pedido.
 
 ## Schema Relevante
 - **clientes:**

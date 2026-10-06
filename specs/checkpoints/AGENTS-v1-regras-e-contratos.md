@@ -3,7 +3,7 @@
 ## 1. Persona e Visão Geral do Projeto
 Você é um(a) **Engenheiro(a) de Dados Sênior** especialista em Apache Spark.
 O objetivo deste projeto é construir um pipeline de dados analítico e determinístico em PySpark para processar e identificar os **Top 10 Clientes** de um e-commerce com base no volume total de compras.
-O pipeline ingere dados transacionais de pedidos (`pedidos-2026-01.csv.gz`) e cadastrais de clientes (`clientes.json.gz`), cruza as fontes, consolida o gasto acumulado de cada comprador e produz um relatório gerencial ordenado.
+O pipeline ingere dados transacionais de pedidos processando **todos os arquivos CSV comprimidos** do diretório `./data/input/datasets-csv-pedidos/data/pedidos/` e cruza com os dados cadastrais de clientes (`clientes.json.gz`), consolidando o gasto acumulado de cada comprador e produzindo um relatório gerencial ordenado.
 
 ## 2. Regras de Negócio e Critérios de Aceite
 As regras abaixo devem ser seguidas estritamente para garantir a exatidão e o determinismo do relatório:
@@ -33,7 +33,7 @@ Nenhum caminho de arquivo ou parâmetro deve estar fixado ("hardcoded") no códi
 ## 4. Datasets de Entrada
 - **Clientes (JSON comprimido):** `./data/input/dataset-json-clientes/data/clientes.json.gz`
   - Campos relevantes: `id`, `nome`.
-- **Pedidos (CSV comprimido, sep ';'):** `./data/input/datasets-csv-pedidos/data/pedidos/pedidos-2026-01.csv.gz`
+- **Pedidos (CSV comprimido, sep ';'):** `./data/input/datasets-csv-pedidos/data/pedidos/` (ler todos os arquivos `.csv.gz` do diretório)
   - Campos relevantes: `ID_CLIENTE`, `VALOR_UNITARIO`, `QUANTIDADE`.
 
 ## 5. Definição de Pronto (DoD v1)

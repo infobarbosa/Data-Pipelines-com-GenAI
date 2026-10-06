@@ -180,10 +180,14 @@ git clone https://github.com/infobarbosa/dataset-json-clientes ./data/input/data
 zcat ./data/input/dataset-json-clientes/data/clientes.json.gz | head -5
 ```
 
-**Pedidos** (CSV comprimido):
+**Pedidos** (múltiplos arquivos CSV comprimidos no diretório):
 
 ```sh
 git clone https://github.com/infobarbosa/datasets-csv-pedidos ./data/input/datasets-csv-pedidos
+```
+
+```sh
+ls -lh ./data/input/datasets-csv-pedidos/data/pedidos/
 ```
 
 ```sh
@@ -198,7 +202,7 @@ zcat ./data/input/datasets-csv-pedidos/data/pedidos/pedidos-2026-01.csv.gz | hea
 {"id": 1, "nome": "Isabel Abreu", "data_nasc": "1982-10-26", "cpf": "512.084.739-05", "email": "isabel.abreu@outlook.com", "interesses": ["Filmes"], "carteira_investimentos": {"FIIs": 11533.69, "CDB": 26677.01}}
 ```
 
-**`pedidos-2026-01.csv.gz`** — separador `;`, com header:
+**`pedidos-2026-01.csv.gz` (amostra de um dos arquivos)** — separador `;`, com header:
 
 ```text
 ID_PEDIDO;PRODUTO;VALOR_UNITARIO;QUANTIDADE;DATA_CRIACAO;UF;ID_CLIENTE
@@ -299,7 +303,7 @@ Substitua todo o conteúdo do arquivo `AGENTS.md` pelo texto abaixo:
 ## 1. Persona e Visão Geral do Projeto
 Você é um(a) **Engenheiro(a) de Dados Sênior** especialista em Apache Spark.
 O objetivo deste projeto é construir um pipeline de dados analítico e determinístico em PySpark para processar e identificar os **Top 10 Clientes** de um e-commerce com base no volume total de compras.
-O pipeline ingere dados transacionais de pedidos (`pedidos-2026-01.csv.gz`) e cadastrais de clientes (`clientes.json.gz`), cruza as fontes, consolida o gasto acumulado de cada comprador e produz um relatório gerencial ordenado.
+O pipeline ingere dados transacionais de pedidos processando **todos os arquivos CSV comprimidos** do diretório `./data/input/datasets-csv-pedidos/data/pedidos/` e cruza com os dados cadastrais de clientes (`clientes.json.gz`), consolidando o gasto acumulado de cada comprador e produzindo um relatório gerencial ordenado.
 
 ## 2. Regras de Negócio e Critérios de Aceite
 
@@ -329,7 +333,7 @@ O pipeline ingere dados transacionais de pedidos (`pedidos-2026-01.csv.gz`) e ca
 
 ## 3. Datasets de Entrada
 - **Clientes (JSON comprimido):** `./data/input/dataset-json-clientes/data/clientes.json.gz`
-- **Pedidos (CSV comprimido, sep ';'):** `./data/input/datasets-csv-pedidos/data/pedidos/pedidos-2026-01.csv.gz`
+- **Pedidos (CSV comprimido, sep ';'):** `./data/input/datasets-csv-pedidos/data/pedidos/` (ler todos os arquivos `.csv.gz` contidos no diretório)
 
 ## 4. Definição de Pronto (DoD)
 O pipeline deve carregar as configurações de `config/config.yaml`, processar os dados brutos e salvar o ranking determinístico em `./data/output/top_10_clientes`.
@@ -362,7 +366,7 @@ Envie o prompt contextualizando o projeto, a persona e solicitando exclusivament
 
 ```text
 Atuando como Engenheiro(a) de Dados Sênior especialista em Apache Spark, analise o arquivo @AGENTS.md.
-Estamos construindo o pipeline analítico dos Top 10 Clientes de um e-commerce, consolidando o faturamento a partir dos dados de pedidos e clientes.
+Estamos construindo o pipeline analítico dos Top 10 Clientes de um e-commerce, consolidando o faturamento a partir de todos os arquivos de pedidos contidos no diretório de pedidos e do cadastro de clientes.
 NÃO altere nenhum arquivo de código ainda.
 Apresente primeiro um plano passo a passo detalhando as modificações necessárias no projeto para atender rigorosamente às regras de negócio, aos contratos de dados e ao arquivo config/config.yaml definidos na especificação.
 ```
