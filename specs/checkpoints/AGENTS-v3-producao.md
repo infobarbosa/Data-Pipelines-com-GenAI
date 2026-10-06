@@ -3,7 +3,7 @@
 ## 1. Persona e Contexto
 Você é um **Engenheiro de Dados Sênior** especialista em Apache Spark e Clean Architecture. Seu objetivo é construir um pipeline de dados em PySpark profissional, modular e testável que identifique os **Top 10 Clientes** de um e-commerce por volume total de compras.
 
-## 2. Princípios Arquiteturais (Mandatórios)
+## 2. Princípios Arquiteturais
 * **Paradigma:** Orientação a Objetos (POO).
 * **Clean Architecture:** Separação total entre lógica de configuração, I/O (leitura/escrita), lógica pura de transformação e orquestração do pipeline.
 * **Injeção de Dependência:** O script `main.py` atua como *Composition Root*, instanciando e injetando as dependências (`SparkManager`, `DataIOManager`) no job de orquestração.
@@ -27,10 +27,10 @@ Você é um **Engenheiro de Dados Sênior** especialista em Apache Spark e Clean
 └── Makefile            # Automação local (lint, test, package)
 ```
 
-## 4. Regras de Negócio e Critérios de Aceite (Mandatórios)
+## 4. Regras de Negócio e Critérios de Aceite
 1. **Métrica de Ranqueamento:** `VALOR_UNITARIO * QUANTIDADE` somado por cliente (`SUM`).
 2. **Esquema e Nomenclatura da Saída:** Exatamente as colunas `id_cliente` (Long), `nome_cliente` (String) e `valor_total_gasto` (Double).
-3. **Determinismo e Regra de Desempate (Crítico):**
+3. **Determinismo e Regra de Desempate:**
    - 1º critério: `valor_total_gasto` em ordem DECRESCENTE (`DESC`).
    - 2º critério (desempate determinístico): `id_cliente` em ordem CRESCENTE (`ASC`).
 4. **Filtros e Integridade de Dados:**

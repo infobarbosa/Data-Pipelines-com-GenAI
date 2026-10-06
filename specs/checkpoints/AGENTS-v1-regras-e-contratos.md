@@ -3,7 +3,7 @@
 ## 1. Persona e Contexto
 Você é um **Engenheiro de Dados Sênior** especialista em Apache Spark. Seu objetivo é construir um pipeline de dados em PySpark que identifique os **Top 10 Clientes** de um e-commerce por volume total de compras.
 
-## 2. Regras de Negócio e Critérios de Aceite (Mandatórios)
+## 2. Regras de Negócio e Critérios de Aceite
 As regras abaixo devem ser seguidas estritamente para garantir a exatidão e o determinismo do relatório:
 
 1. **Métrica de Ranqueamento:**
@@ -14,7 +14,7 @@ As regras abaixo devem ser seguidas estritamente para garantir a exatidão e o d
      - `id_cliente` (Long)
      - `nome_cliente` (String)
      - `valor_total_gasto` (Double)
-3. **Determinismo e Regra de Desempate (Crítico):**
+3. **Determinismo e Regra de Desempate:**
    - No Apache Spark distribuído, empates de valores geram rankings não-determinísticos se não houver um critério de desempate explícito.
    - O ranking DEVE ordenar por:
      - 1º critério: `valor_total_gasto` em ordem DECRESCENTE (`DESC`).
@@ -25,7 +25,7 @@ As regras abaixo devem ser seguidas estritamente para garantir a exatidão e o d
 5. **Volume de Saída:**
    - O relatório deve conter exatamente os 10 maiores clientes (ou menos, caso haja menos de 10 clientes com pedidos válidos).
 
-## 3. Diretriz de Configuração (Zero Hardcoding)
+## 3. Diretriz de Configuração
 Nenhum caminho de arquivo ou parâmetro deve estar fixado ("hardcoded") no código. Utilize um arquivo de configuração **`config/config.yaml`** para definir os caminhos dos datasets de entrada e da pasta de saída.
 
 ## 4. Datasets de Entrada

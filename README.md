@@ -298,7 +298,7 @@ No arquivo `AGENTS.md`, adicione o seguinte bloco com a persona e as regras func
 ## 1. Persona e Contexto
 Você é um(a) **Engenheiro(a) de Dados Sênior** especialista em Apache Spark. Seu objetivo é construir um pipeline de dados analítico e determinístico em PySpark que identifique os **Top 10 Clientes** de um e-commerce por volume total de compras.
 
-## 2. Regras de Negócio e Critérios de Aceite (Mandatórios)
+## 2. Regras de Negócio e Critérios de Aceite
 
 ### 1. Métrica de Ranqueamento
 - O valor de cada item de pedido é calculado por: `VALOR_UNITARIO * QUANTIDADE`.
@@ -310,7 +310,7 @@ Você é um(a) **Engenheiro(a) de Dados Sênior** especialista em Apache Spark. 
   - `nome_cliente` (String)
   - `valor_total_gasto` (Double)
 
-### 3. Determinismo e Regra de Desempate (Crítico)
+### 3. Determinismo e Regra de Desempate
 - Em pipelines distribuídos (Apache Spark), ordenações com valores idênticos geram resultados não-determinísticos se não houver um critério de desempate explícito.
 - O ranking DEVE ordenar estritamente por:
   1. `valor_total_gasto` em ordem DECRESCENTE (`DESC`).
@@ -320,9 +320,9 @@ Você é um(a) **Engenheiro(a) de Dados Sênior** especialista em Apache Spark. 
 - Apenas clientes com compras ativas no período devem constar no ranking (Inner Join). Clientes sem pedidos registrados NÃO devem aparecer no relatório.
 - Pedidos cujo `ID_CLIENTE` não possua correspondência na base de clientes devem ser descartados.
 
-### 5. Volume e Configuração (Zero Hardcoding)
+### 5. Volume e Configuração
 - O relatório deve conter exatamente os 10 maiores clientes (ou menos, se houver menos de 10 clientes válidos).
-- Nenhum caminho de arquivo deve estar fixado ("hardcoded") no código. Utilize um arquivo `config/config.yaml` para mapear os datasets de entrada e o diretório de saída `./data/output/top_10_clientes`.
+- Nenhum caminho de arquivo deve estar fixado no código. Utilize um arquivo `config/config.yaml` para mapear os datasets de entrada e o diretório de saída `./data/output/top_10_clientes`.
 ```
 
 *(Nota: um gabarito de referência desta etapa está disponível em `specs/checkpoints/AGENTS-v1-regras-e-contratos.md`).*
