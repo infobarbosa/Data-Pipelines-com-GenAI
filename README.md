@@ -240,10 +240,10 @@ Inicie o OpenCode dentro de `top-10-clientes`:
 opencode
 ```
 
-Envie o prompt direto:
+Envie o prompt direto definindo a persona:
 
 ```text
-Elabore um projeto pyspark que gere um relatório dos top 10 clientes com base no valor total dos pedidos.
+Atuando como um(a) Engenheiro(a) de Dados Sênior especialista em Apache Spark, elabore um projeto PySpark que gere um relatório dos top 10 clientes com base no valor total dos pedidos.
 ```
 
 Autorize a criação dos arquivos sugeridos e encerre a sessão com `/exit`.
@@ -251,7 +251,7 @@ Autorize a criação dos arquivos sugeridos e encerre a sessão com `/exit`.
 ### 4.2 Avaliação do Código Gerado
 
 Abra o arquivo gerado (normalmente um `main.py` solto). Se você rodar com `spark-submit`, ele pode até executar e exibir um DataFrame no terminal.  
-No entanto, uma análise criteriosa revela premissas e decisões ocultas.
+No entanto, uma análise criteriosa revela premissas e decisões ocultas — demonstrando que **apenas definir uma persona no prompt livre não substitui uma especificação formal**.
 
 ### 4.3 Análise Crítica: 4 Questões Essenciais de Regra de Negócio
 
@@ -279,7 +279,7 @@ Analise o código gerado à luz de quatro questões fundamentais que a IA precis
 - O código está concentrado em um bloco procedural único (impossível de testar sem instanciar recursos de disco/cluster).
 - Não há testes automatizados nem rotinas de validação de estilo.
 
-> **Conclusão:** Quando regras de negócio e restrições arquiteturais não são explicitadas, o agente preenche as lacunas com premissas próprias e silenciosas. Esse comportamento evidencia a necessidade do Spec-Driven Development.
+> **Conclusão:** Mesmo quando atribuímos uma persona sênior, a ausência de regras de negócio e restrições arquiteturais explícitas faz com que o agente preencha as lacunas com premissas próprias e silenciosas. Esse comportamento evidencia a necessidade do Spec-Driven Development.
 
 ---
 
@@ -289,14 +289,17 @@ Agora aplicamos o **Shift-Left**: blindamos as regras de negócio e os contratos
 
 O comando `/init` que executamos na Parte 3 já criou o esqueleto básico do `AGENTS.md`. No entanto, nenhum modelo de IA é capaz de adivinhar os requisitos específicos do seu domínio de negócio. O papel do engenheiro é complementar essa especificação com clareza funcional.
 
-### 5.1 Adicionando as Regras de Negócio (Append no Editor Visual)
+### 5.1 Adicionando a Persona e as Regras de Negócio (Append no Editor Visual)
 
 Abra o arquivo `AGENTS.md` na árvore lateral esquerda do VS Code.  
-Role até o final do arquivo e **acrescente (append)** o seguinte bloco de regras de negócio e contratos:
+Role até o final do arquivo e **acrescente (append)** o seguinte bloco estruturado contendo a persona e as regras funcionais:
 
 ```markdown
 
-## Regras de Negócio e Contratos de Dados (Mandatórios)
+## 1. Persona e Contexto
+Você é um(a) **Engenheiro(a) de Dados Sênior** especialista em Apache Spark. Seu objetivo é construir um pipeline de dados analítico e determinístico em PySpark que identifique os **Top 10 Clientes** de um e-commerce por volume total de compras.
+
+## 2. Regras de Negócio e Critérios de Aceite (Mandatórios)
 
 ### 1. Métrica de Ranqueamento
 - O valor de cada item de pedido é calculado por: `VALOR_UNITARIO * QUANTIDADE`.
@@ -348,10 +351,10 @@ No terminal, inicie o OpenCode dentro de `top-10-clientes`:
 opencode
 ```
 
-Envie o prompt solicitando exclusivamente o planejamento:
+Envie o prompt contextualizando a persona e solicitando exclusivamente o planejamento:
 
 ```text
-Analise o arquivo @AGENTS.md com as novas regras de negócio e contratos de dados.
+Atuando como Engenheiro(a) de Dados Sênior especialista em Apache Spark, analise o arquivo @AGENTS.md com as novas regras de negócio e contratos de dados.
 NÃO altere nenhum arquivo de código ainda.
 Apresente primeiro um plano passo a passo detalhando as modificações necessárias no projeto para atender rigorosamente a essas regras, com atenção especial ao determinismo de desempate (ordenação composta), ao Inner Join para exclusão de inativos e ao arquivo config/config.yaml.
 ```
